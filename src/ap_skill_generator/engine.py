@@ -165,6 +165,9 @@ class APGenerationEngine:
     def query_items(self, *, subject: str | None = None, skill: str | None = None, difficulty: int | None = None) -> list[dict]:
         return self.storage.list_items(subject=subject, skill=skill, difficulty=difficulty)
 
+    def get_dashboard_stats(self) -> dict:
+        return self.storage.get_dashboard_stats()
+
     def _fallback_item(self, req: GenerateRequest, model_id: str):
         question = f"[Fallback] Build an AP-style {req.type.value.upper()} item for skill: {req.skill}."
         choices = ["A. 1", "B. 2", "C. 3", "D. 4"] if req.type.value == "mcq" else []

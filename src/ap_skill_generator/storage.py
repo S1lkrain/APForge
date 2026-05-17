@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
-from sqlalchemy import JSON, Boolean, DateTime, Integer, String, Text, create_engine
+from sqlalchemy import JSON, Boolean, DateTime, Integer, String, Text, create_engine, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 from sqlalchemy.pool import StaticPool
 
@@ -67,6 +67,24 @@ class EvalRecord(Base):
     difficulty_score: Mapped[int] = mapped_column(Integer)
     notes: Mapped[str] = mapped_column(Text, default="")
     judge_scores: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+
+
+def compute_quality_score(judge_scores: dict[str, Any] | None) -> float | None:
+    if not judge_scores:
+        return None
+    keys = ("schema_score", "consistency_score", "pedagogy_score", "compliance_score")
+    values = [judge_scores.get(key) for key in keys]
+    if not all(isinstance(value, (int, float)) for value in values):
+        return None
+    return round(sum(values) / len(values), 1)  # type: ignore[arg-type]
+
+
+def map_ui_status(final_status: str) -> str:
+    if final_status == "accepted":
+        return "Success"
+    if final_status == "accepted_with_warning":
+        return "Warn"
+    return "Rejected"
 
 
 @dataclass
@@ -179,7 +197,11 @@ class Storage:
 
     def list_items(self, *, subject: str | None = None, skill: str | None = None, difficulty: int | None = None) -> list[dict]:
         with Session(self.engine) as session:
-            query = session.query(ItemRecord, RunRecord).join(RunRecord, ItemRecord.run_id == RunRecord.id)
+            query = (
+                session.query(ItemRecord, RunRecord, EvalRecord)
+                .join(RunRecord, ItemRecord.run_id == RunRecord.id)
+                .outerjoin(EvalRecord, EvalRecord.run_id == RunRecord.id)
+            )
             if subject:
                 query = query.filter(RunRecord.subject == subject)
             if skill:
@@ -189,7 +211,8 @@ class Storage:
             rows = query.order_by(RunRecord.created_at.desc()).limit(100).all()
 
         output = []
-        for item, run in rows:
+        for item, run, eval_row in rows:
+            judge_scores = eval_row.judge_scores if eval_row else {}
             output.append(
                 {
                     "run_id": run.id,
@@ -199,7 +222,9 @@ class Storage:
                     "difficulty": run.difficulty,
                     "type": run.item_type,
                     "final_status": run.final_status,
+                    "status": map_ui_status(run.final_status),
                     "failure_reason_code": run.failure_reason_code,
+                    "quality_score": compute_quality_score(judge_scores),
                     "question": item.question,
                     "choices": json.loads(item.choices),
                     "answer": item.answer,
@@ -208,6 +233,93 @@ class Storage:
                 }
             )
         return output
+
+    def get_dashboard_stats(self) -> dict:
+        now = datetime.now(timezone.utc)
+        week_ago = now - timedelta(days=7)
+        prev_week_start = now - timedelta(days=14)
+
+        with Session(self.engine) as session:
+            total_runs = session.query(func.count(RunRecord.id)).scalar() or 0
+            success_runs = (
+                session.query(func.count(RunRecord.id))
+                .filter(RunRecord.final_status.in_(("accepted", "accepted_with_warning")))
+                .scalar()
+                or 0
+            )
+            success_rate = (success_runs / total_runs) if total_runs else 0.0
+
+            eval_rows = session.query(EvalRecord.judge_scores).all()
+            quality_scores = [
+                score
+                for row in eval_rows
+                if (score := compute_quality_score(row.judge_scores)) is not None
+            ]
+            avg_quality_score = round(sum(quality_scores) / len(quality_scores), 1) if quality_scores else 0.0
+
+            recent_runs = (
+                session.query(func.count(RunRecord.id)).filter(RunRecord.created_at >= week_ago).scalar() or 0
+            )
+            prev_runs = (
+                session.query(func.count(RunRecord.id))
+                .filter(RunRecord.created_at >= prev_week_start, RunRecord.created_at < week_ago)
+                .scalar()
+                or 0
+            )
+
+            recent_success = (
+                session.query(func.count(RunRecord.id))
+                .filter(
+                    RunRecord.created_at >= week_ago,
+                    RunRecord.final_status.in_(("accepted", "accepted_with_warning")),
+                )
+                .scalar()
+                or 0
+            )
+            prev_success = (
+                session.query(func.count(RunRecord.id))
+                .filter(
+                    RunRecord.created_at >= prev_week_start,
+                    RunRecord.created_at < week_ago,
+                    RunRecord.final_status.in_(("accepted", "accepted_with_warning")),
+                )
+                .scalar()
+                or 0
+            )
+            recent_success_rate = (recent_success / recent_runs) if recent_runs else 0.0
+            prev_success_rate = (prev_success / prev_runs) if prev_runs else 0.0
+
+            recent_evals = (
+                session.query(EvalRecord.judge_scores).join(RunRecord, EvalRecord.run_id == RunRecord.id).filter(
+                    RunRecord.created_at >= week_ago
+                ).all()
+            )
+            prev_evals = (
+                session.query(EvalRecord.judge_scores)
+                .join(RunRecord, EvalRecord.run_id == RunRecord.id)
+                .filter(RunRecord.created_at >= prev_week_start, RunRecord.created_at < week_ago)
+                .all()
+            )
+
+        def avg_quality(rows: list) -> float:
+            scores = [s for row in rows if (s := compute_quality_score(row.judge_scores)) is not None]
+            return round(sum(scores) / len(scores), 1) if scores else 0.0
+
+        recent_avg_quality = avg_quality(recent_evals)
+        prev_avg_quality = avg_quality(prev_evals)
+
+        return {
+            "total_generated": total_runs,
+            "success_rate": round(success_rate, 4),
+            "avg_quality_score": avg_quality_score,
+            "total_runs": total_runs,
+            "week_delta": {
+                "total_generated": recent_runs - prev_runs,
+                "success_rate": round(recent_success_rate - prev_success_rate, 4),
+                "avg_quality_score": round(recent_avg_quality - prev_avg_quality, 1),
+                "total_runs": recent_runs - prev_runs,
+            },
+        }
 
     def save_eval(self, *, run_id: str, eval_data: dict) -> None:
         with Session(self.engine) as session:

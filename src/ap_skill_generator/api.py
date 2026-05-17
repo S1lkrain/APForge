@@ -87,6 +87,16 @@ def items(
     return {"items": engine.query_items(subject=subject, skill=skill, difficulty=difficulty)}
 
 
+@app.get("/stats")
+def stats(
+    http_request: Request,
+    _: None = Depends(require_api_key),
+    engine: APGenerationEngine = Depends(get_engine),
+):
+    _rate_limiter.check(client_key=client_ip(http_request), route_key="items")
+    return engine.get_dashboard_stats()
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}

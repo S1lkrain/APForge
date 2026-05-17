@@ -11,5 +11,7 @@ htmlcov/
 *.sqlite3
 .DS_Store
 dist/
+frontend/node_modules/
+.tools/
 build/
 *.egg-info/

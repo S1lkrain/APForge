@@ -54,3 +54,40 @@ def test_verify_api_key_skipped_when_unset():
 
 def test_health_endpoint(api_client):
     assert api_client.get("/health").json() == {"status": "ok"}
+
+
+def test_items_include_quality_and_status(api_client):
+    api_client.post(
+        "/generate",
+        json={
+            "subject": "ap_precalculus",
+            "skill": "limits",
+            "difficulty": 3,
+            "type": "mcq",
+        },
+    )
+    items = api_client.get("/items").json()["items"]
+    assert len(items) >= 1
+    row = items[0]
+    assert "quality_score" in row
+    assert row["quality_score"] is not None
+    assert row["status"] in {"Success", "Warn", "Rejected"}
+
+
+def test_stats_endpoint(api_client):
+    api_client.post(
+        "/generate",
+        json={
+            "subject": "ap_precalculus",
+            "skill": "linear-functions",
+            "difficulty": 2,
+            "type": "frq",
+        },
+    )
+    stats = api_client.get("/stats").json()
+    assert stats["total_generated"] >= 1
+    assert stats["total_runs"] >= 1
+    assert 0.0 <= stats["success_rate"] <= 1.0
+    assert "avg_quality_score" in stats
+    assert "week_delta" in stats
+    assert "total_generated" in stats["week_delta"]

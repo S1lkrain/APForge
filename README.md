@@ -9,7 +9,7 @@ A modular, callable AP-style content generation engine designed for agent and pi
 - Harness policy layer with machine-readable rollout modes: `shadow` / `warn` / `enforce`.
 - OpenAI-compatible provider adapter via config.
 - Persistence for runs/items/evals with trace metadata.
-- Thin demo dashboard for parameterized generation and history inspection.
+- React dashboard (`frontend/`) for parameterized generation, stats, and history.
 - API endpoint (`/generate`) and SDK-style interface (`APGenerationEngine.generate`).
 
 ## Quickstart
@@ -28,6 +28,7 @@ OPENAI_API_KEY=your_key
 OPENAI_BASE_URL=https://api.openai.com/v1
 OPENAI_MODEL=gpt-4o-mini
 API_KEY=your_api_secret   # optional; leave empty for local dev without auth
+CORS_ORIGINS=http://localhost:5173
 ```
 
 ## Run API
@@ -42,6 +43,7 @@ Endpoints:
 
 - `POST /generate` — generate one item (optional header `X-API-Key` when `API_KEY` is set)
 - `GET /items?subject=ap_precalculus&skill=limits&difficulty=3`
+- `GET /stats` — dashboard aggregates (totals, success rate, quality, week deltas)
 - `GET /health`
 
 Example payload:
@@ -85,11 +87,22 @@ Example response (abbreviated):
 - Never commit `.env` (see `.gitignore`).
 - Rotate keys if `.env` was ever committed.
 
-## Run Dashboard
+## Run Dashboard (React)
+
+Start the API, then the frontend dev server:
 
 ```bash
-streamlit run dashboard.py
+python -m ap_skill_generator
+
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
 ```
+
+Open [http://localhost:5173](http://localhost:5173). Vite proxies `/api` to the backend on port 8000.
+
+If `API_KEY` is set, add it to `frontend/.env` as `VITE_API_KEY`.
 
 ## Run Tests
 
