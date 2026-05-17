@@ -1,0 +1,27 @@
+{
+  "harness_version": "v1",
+  "policy_version": "v1",
+  "prompt_pack_version": "v2",
+  "mode": "warn",
+  "retry_budgets": {
+    "question": 2,
+    "answer": 2,
+    "explanation": 2,
+    "repair": 2
+  },
+  "thresholds": {
+    "compliance_score_min": 98,
+    "consistency_score_min": 95,
+    "pedagogy_score_min": 70,
+    "schema_score_min": 100
+  },
+  "hard_fail_rules": {
+    "schema_invalid": true,
+    "compliance_below_threshold": true
+  },
+  "soft_fail_rules": {
+    "consistency_below_threshold": true,
+    "pedagogy_below_threshold": true
+  },
+  "allow_one_soft_retry": true
+}
