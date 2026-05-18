@@ -1,0 +1,29 @@
+{
+  "id": "polynomial_end_behavior_mcq",
+  "unit": "Polynomial and Rational Functions",
+  "skill": "End Behavior",
+  "question_type": "MCQ",
+  "style_summary": "Use tables or qualitative graphs to infer end behavior, concavity, or model type without full expansion.",
+  "representation": [
+    "table",
+    "symbolic",
+    "graph_sketch"
+  ],
+  "cognitive_action": [
+    "compare",
+    "interpret",
+    "justify"
+  ],
+  "wording_patterns": [
+    "which of the following statements is true",
+    "which of the following could be true about the graph",
+    "because the function is decreasing"
+  ],
+  "distractor_patterns": [
+    "degree_parity_confusion",
+    "concavity_from_decreasing_table",
+    "local_vs_global_behavior",
+    "linear_vs_quadratic_model_confusion"
+  ],
+  "notes": "Mock item 21; Course topics 1.6–1.7."
+}

@@ -1,0 +1,30 @@
+{
+  "id": "polar_functions_mcq",
+  "unit": "Trigonometric and Polar Functions",
+  "skill": "Polar Function Graphs",
+  "question_type": "MCQ",
+  "style_summary": "Work with polar coordinates, quadrant location, arc length on the unit circle, and intervals on polar graphs.",
+  "representation": [
+    "polar_graph",
+    "symbolic",
+    "table"
+  ],
+  "cognitive_action": [
+    "convert",
+    "interpret",
+    "identify"
+  ],
+  "wording_patterns": [
+    "in polar coordinates",
+    "which of the following describes the location",
+    "which of the following are the values for a and b",
+    "distance between the point and the origin"
+  ],
+  "distractor_patterns": [
+    "quadrant_angle_reasoning_error",
+    "negative_radius_reflection",
+    "polar_rectangular_conversion_slip",
+    "wrong_polar_interval_from_graph"
+  ],
+  "notes": "Mock items 10, 17, 24, 28, 85; alias: polar, polar-functions."
+}

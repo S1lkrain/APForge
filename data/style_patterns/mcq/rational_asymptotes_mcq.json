@@ -1,0 +1,30 @@
+{
+  "id": "rational_asymptotes_mcq",
+  "unit": "Polynomial and Rational Functions",
+  "skill": "Asymptotes",
+  "question_type": "MCQ",
+  "style_summary": "Target holes, vertical asymptotes, and limiting behavior using structure and multiplicity—not long simplification.",
+  "representation": [
+    "graph",
+    "symbolic",
+    "table"
+  ],
+  "cognitive_action": [
+    "identify",
+    "interpret",
+    "justify"
+  ],
+  "wording_patterns": [
+    "which of the following could define",
+    "which of the following is true about holes in the graph",
+    "which of the following conclusions is possible",
+    "input values sufficiently close to"
+  ],
+  "distractor_patterns": [
+    "hole_vs_vertical_asymptote",
+    "multiplicity_hole_argument_error",
+    "horizontal_asymptote_degree_error",
+    "x_intercept_vs_hole_confusion"
+  ],
+  "notes": "Mock items 6, 26, 83; alias: rational-functions, asymptotes."
+}

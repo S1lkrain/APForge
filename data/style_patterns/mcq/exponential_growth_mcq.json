@@ -1,0 +1,32 @@
+{
+  "id": "exponential_growth_mcq",
+  "unit": "Exponential and Logarithmic Functions",
+  "skill": "Exponential Growth and Decay",
+  "question_type": "MCQ",
+  "style_summary": "Use realistic contexts and graphs to interpret growth/decay, concavity, initial value, and equivalent forms after translations.",
+  "representation": [
+    "table",
+    "context",
+    "equation",
+    "graph"
+  ],
+  "cognitive_action": [
+    "interpret",
+    "compare",
+    "transform"
+  ],
+  "wording_patterns": [
+    "which of the following models",
+    "which of the following statements is true about the exponential function",
+    "based on this information",
+    "which of the following is an equivalent form"
+  ],
+  "distractor_patterns": [
+    "growth_factor_vs_rate_confusion",
+    "initial_value_shift",
+    "linear_vs_exponential_mixup",
+    "concavity_sign_error",
+    "horizontal_vs_vertical_translation_error"
+  ],
+  "notes": "Mock items 1, 5, 8, 11, 20; alias: exponential-growth, exponential-decay."
+}

@@ -10,6 +10,7 @@ htmlcov/
 *.db
 *.sqlite3
 .DS_Store
+data/ap_sources/mcq_questions/*_extracted.txt
 dist/
 frontend/node_modules/
 .tools/

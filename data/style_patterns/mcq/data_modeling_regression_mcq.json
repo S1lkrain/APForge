@@ -1,0 +1,31 @@
+{
+  "id": "data_modeling_regression_mcq",
+  "unit": "Exponential and Logarithmic Functions",
+  "skill": "Competing Function Model Validation",
+  "question_type": "MCQ",
+  "style_summary": "Choose or validate models using tables, residual reasoning, semi-log plots, or regression predictions.",
+  "representation": [
+    "table",
+    "graph",
+    "context"
+  ],
+  "cognitive_action": [
+    "interpret",
+    "predict",
+    "validate"
+  ],
+  "wording_patterns": [
+    "which of the following statements is true about the model",
+    "is best modeled by",
+    "regression is used to model",
+    "predicted by the model for",
+    "semi-log plot"
+  ],
+  "distractor_patterns": [
+    "linear_vs_quadratic_from_differences",
+    "overestimate_vs_underestimate_residual",
+    "wrong_regression_degree",
+    "semi_log_model_type_confusion"
+  ],
+  "notes": "Mock items 12, 27, 77, 80, 84; alias: regression, data-modeling."
+}

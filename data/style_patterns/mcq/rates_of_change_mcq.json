@@ -1,0 +1,29 @@
+{
+  "id": "rates_of_change_mcq",
+  "unit": "Polynomial and Rational Functions",
+  "skill": "Rates of Change",
+  "question_type": "MCQ",
+  "style_summary": "Compare average or instantaneous rates from graphs, tables, or contexts; distinguish value from rate of change.",
+  "representation": [
+    "graph",
+    "table",
+    "context"
+  ],
+  "cognitive_action": [
+    "compare",
+    "interpret"
+  ],
+  "wording_patterns": [
+    "at which is the rate of change the least",
+    "what is the average rate of change over the closed interval",
+    "on which intervals is the rate of change decreasing",
+    "which container would the graph be appropriate"
+  ],
+  "distractor_patterns": [
+    "value_vs_rate_confusion",
+    "wrong_interval_for_extrema",
+    "concavity_vs_monotonicity",
+    "constant_rate_context_mismatch"
+  ],
+  "notes": "Mock items 7, 16, 76, 78, 82; alias: limits, rates-of-change, linear-functions."
+}

@@ -10,6 +10,8 @@ from .prompts import (
 )
 from .providers import LLMProvider
 from .schema import GenerateRequest, GeneratedItem, Metadata, QuestionType
+from .style.pattern_loader import find_pattern
+from .style.prompt_builder import build_style_prompt
 
 
 class SkillValidationError(RuntimeError):
@@ -22,10 +24,20 @@ class QuestionSkill:
     def __init__(self, provider: LLMProvider):
         self.provider = provider
 
+    @staticmethod
+    def _build_user_prompt(req: GenerateRequest) -> str:
+        user_prompt = question_skill_prompt(req)
+        if req.type != QuestionType.MCQ:
+            return user_prompt
+        pattern = find_pattern(unit="", skill=req.skill)
+        if pattern is None:
+            return user_prompt
+        return f"{user_prompt}\n\n{build_style_prompt(pattern)}"
+
     def run(self, req: GenerateRequest, max_repair_attempts: int = 2) -> tuple[dict, str, bool, int, list[str]]:
         payload, model_id = self.provider.complete_json(
             system_prompt=system_prompt(),
-            user_prompt=question_skill_prompt(req),
+            user_prompt=self._build_user_prompt(req),
         )
         repaired = False
         repair_classes: list[str] = []

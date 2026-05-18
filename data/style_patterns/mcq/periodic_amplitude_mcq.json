@@ -1,0 +1,28 @@
+{
+  "id": "periodic_amplitude_mcq",
+  "unit": "Trigonometric and Polar Functions",
+  "skill": "Sinusoidal Functions",
+  "question_type": "MCQ",
+  "style_summary": "Interpret amplitude, period, and midline from graphs or equations; ask for all solutions on a bounded interval when solving trig equations.",
+  "representation": [
+    "graph",
+    "symbolic",
+    "context"
+  ],
+  "cognitive_action": [
+    "interpret",
+    "identify"
+  ],
+  "wording_patterns": [
+    "which of the following is the graph of",
+    "what are all values of",
+    "for 0 ≤ θ < 2π, where"
+  ],
+  "distractor_patterns": [
+    "amplitude_period_confusion",
+    "vertical_shift_confusion",
+    "wrong_interval_solutions",
+    "phase_shift_direction_error"
+  ],
+  "notes": "Mock items 3, 15, 22; alias skills: amplitude-and-period, sinusoidal-functions."
+}

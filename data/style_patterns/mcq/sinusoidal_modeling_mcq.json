@@ -1,0 +1,28 @@
+{
+  "id": "sinusoidal_modeling_mcq",
+  "unit": "Trigonometric and Polar Functions",
+  "skill": "Sinusoidal Function Context and Data Modeling",
+  "question_type": "MCQ",
+  "style_summary": "Adjust a sinusoidal model when context reveals systematic over- or under-estimation; keep units and scaling explicit.",
+  "representation": [
+    "context",
+    "equation"
+  ],
+  "cognitive_action": [
+    "interpret",
+    "revise_model"
+  ],
+  "wording_patterns": [
+    "modeled by the function",
+    "based on this information, which of the following functions is a better model",
+    "measured in",
+    "underestimates by"
+  ],
+  "distractor_patterns": [
+    "vertical_shift_only_fix",
+    "wrong_amplitude_scaling",
+    "period_change_instead_of_shift",
+    "unit_conversion_error"
+  ],
+  "notes": "Mock item 18; Course topic 3.7."
+}

@@ -1,0 +1,26 @@
+{
+  "id": "logarithmic_expressions_mcq",
+  "unit": "Exponential and Logarithmic Functions",
+  "skill": "Logarithmic Expressions",
+  "question_type": "MCQ",
+  "style_summary": "Evaluate log expressions, apply log properties, and compose logs with exponentials in concise symbolic items.",
+  "representation": [
+    "symbolic"
+  ],
+  "cognitive_action": [
+    "compute",
+    "transform"
+  ],
+  "wording_patterns": [
+    "what input value in the domain",
+    "which of the following is equivalent to",
+    "which of the following is an expression for"
+  ],
+  "distractor_patterns": [
+    "log_property_power_vs_factor",
+    "wrong_log_base_inverse",
+    "composition_domain_error",
+    "ln_exp_algebra_slip"
+  ],
+  "notes": "Mock items 2, 4, 13; alias: logarithms, log-expressions."
+}
