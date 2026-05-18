@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from logging import getLogger
 
 from .config import Settings
@@ -29,27 +29,40 @@ class APGenerationEngine:
         self.harness_policy = load_policy()
         self._logger = getLogger(__name__)
 
-    def generate(self, req: GenerateRequest) -> dict:
+    def generate(self, req: GenerateRequest, *, llm_api_key: str | None = None) -> dict:
         request_id = str(uuid.uuid4())
         logger = RequestLoggerAdapter(self._logger, {"request_id": request_id})
         start = time.perf_counter()
-        self.provider.reset_token_usage()
+
+        override_key = (llm_api_key or "").strip()
+        if override_key:
+            provider = OpenAICompatibleProvider(replace(self.settings, openai_api_key=override_key))
+            question_skill = QuestionSkill(provider)
+            answer_skill = AnswerSkill(provider)
+            explanation_skill = ExplanationSkill(provider)
+        else:
+            provider = self.provider
+            question_skill = self.question_skill
+            answer_skill = self.answer_skill
+            explanation_skill = self.explanation_skill
+
+        provider.reset_token_usage()
         retry_budget = self.harness_policy.retry_budgets
         question_repair_budget = retry_budget.get(
             "repair",
             retry_budget.get("question", 2),
         )
-        question_draft, q_model_id, repaired, q_attempts, repair_classes = self.question_skill.run(
+        question_draft, q_model_id, repaired, q_attempts, repair_classes = question_skill.run(
             req,
             max_repair_attempts=question_repair_budget,
         )
-        answer, a_model_id, a_attempts = self.answer_skill.run(
+        answer, a_model_id, a_attempts = answer_skill.run(
             req,
             question_draft["question"],
             question_draft["choices"],
             max_attempts=retry_budget.get("answer", 2),
         )
-        explanation, e_model_id, e_attempts = self.explanation_skill.run(
+        explanation, e_model_id, e_attempts = explanation_skill.run(
             req,
             question_draft["question"],
             answer,
@@ -75,7 +88,7 @@ class APGenerationEngine:
 
         # one controlled soft-retry path for explainability/consistency.
         if decision.soft_fail and self.harness_policy.allow_one_soft_retry and decision.status != "accepted":
-            explanation, e_model_id, e_attempts_retry = self.explanation_skill.run(
+            explanation, e_model_id, e_attempts_retry = explanation_skill.run(
                 req,
                 question_draft["question"],
                 answer,
@@ -110,7 +123,7 @@ class APGenerationEngine:
             failure_reason_code = decision.failure_reason_code or "FALLBACK_PLACEHOLDER"
 
         latency_ms = int((time.perf_counter() - start) * 1000)
-        token_usage = self.provider.pop_token_usage()
+        token_usage = provider.pop_token_usage()
         attempt_count_by_skill = {
             "question": q_attempts,
             "answer": a_attempts,

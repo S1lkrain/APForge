@@ -41,7 +41,8 @@ Defaults: `API_HOST=127.0.0.1`, `API_PORT=8000`.
 
 Endpoints:
 
-- `POST /generate` — generate one item (optional header `X-API-Key` when `API_KEY` is set)
+- `GET /config` — public flags (`api_auth_required`, `llm_configured`)
+- `POST /generate` — generate one item (optional `X-API-Key`, optional `X-LLM-API-Key` override)
 - `GET /items?subject=ap_precalculus&skill=limits&difficulty=3`
 - `GET /stats` — dashboard aggregates (totals, success rate, quality, week deltas)
 - `GET /health`
@@ -102,7 +103,16 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173). Vite proxies `/api` to the backend on port 8000.
 
-If `API_KEY` is set, add it to `frontend/.env` as `VITE_API_KEY`.
+If `API_KEY` is set, add it to `frontend/.env` as `VITE_API_KEY`, or enter it in the dashboard **API Keys** panel (stored in browser localStorage).
+
+### Dashboard API keys
+
+The dashboard **API Keys** panel supports:
+
+- **Access API Key** — sent as `X-API-Key` when the backend `API_KEY` is set.
+- **LLM API Key** — sent as `X-LLM-API-Key` on `/generate` to override server `OPENAI_API_KEY` for that request (optional if the server already has a key).
+
+Keys are kept in browser localStorage only; they are not saved to the server `.env`.
 
 ## Run Tests
 

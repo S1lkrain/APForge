@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ValidationError
 
@@ -54,16 +54,25 @@ class GenerateResponse(BaseModel):
     harness: HarnessInfo
 
 
+@app.get("/config")
+def public_config():
+    return {
+        "api_auth_required": bool(_settings.api_key.strip()),
+        "llm_configured": bool(_settings.openai_api_key.strip()),
+    }
+
+
 @app.post("/generate", response_model=GenerateResponse)
 def generate(
     payload: GenerateRequest,
     http_request: Request,
     _: None = Depends(require_api_key),
     engine: APGenerationEngine = Depends(get_engine),
+    x_llm_api_key: str | None = Header(default=None, alias="X-LLM-API-Key"),
 ):
     _rate_limiter.check(client_key=client_ip(http_request), route_key="generate")
     try:
-        return engine.generate(payload)
+        return engine.generate(payload, llm_api_key=x_llm_api_key)
     except SkillValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ValidationError as exc:

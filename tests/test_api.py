@@ -56,6 +56,13 @@ def test_health_endpoint(api_client):
     assert api_client.get("/health").json() == {"status": "ok"}
 
 
+def test_config_endpoint(api_client):
+    body = api_client.get("/config").json()
+    assert set(body) == {"api_auth_required", "llm_configured"}
+    assert isinstance(body["api_auth_required"], bool)
+    assert isinstance(body["llm_configured"], bool)
+
+
 def test_items_include_quality_and_status(api_client):
     api_client.post(
         "/generate",

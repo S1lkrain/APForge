@@ -1,16 +1,41 @@
 import type { DashboardStats, GenerateRequest, GenerateResponse, ItemRow } from "./types";
+import {
+  getEffectiveApiKey,
+  getEffectiveLlmApiKey,
+} from "../lib/settingsStorage";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "/api";
-const apiKey = import.meta.env.VITE_API_KEY ?? "";
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...(init?.headers as Record<string, string> | undefined),
-  };
+export interface PublicConfig {
+  api_auth_required: boolean;
+  llm_configured: boolean;
+}
+
+function buildAuthHeaders(includeLlmKey: boolean): Record<string, string> {
+  const headers: Record<string, string> = {};
+  const apiKey = getEffectiveApiKey();
   if (apiKey) {
     headers["X-API-Key"] = apiKey;
   }
+  if (includeLlmKey) {
+    const llmKey = getEffectiveLlmApiKey();
+    if (llmKey) {
+      headers["X-LLM-API-Key"] = llmKey;
+    }
+  }
+  return headers;
+}
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  options?: { includeLlmKey?: boolean },
+): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init?.headers as Record<string, string> | undefined),
+    ...buildAuthHeaders(options?.includeLlmKey ?? false),
+  };
 
   const response = await fetch(`${baseUrl}${path}`, {
     ...init,
@@ -31,11 +56,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export function getPublicConfig(): Promise<PublicConfig> {
+  return request<PublicConfig>("/config");
+}
+
 export function generate(payload: GenerateRequest): Promise<GenerateResponse> {
-  return request<GenerateResponse>("/generate", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+  return request<GenerateResponse>(
+    "/generate",
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+    { includeLlmKey: true },
+  );
 }
 
 export function listItems(params?: {

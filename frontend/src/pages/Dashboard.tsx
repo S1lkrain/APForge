@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ApiSettingsCard } from "../components/dashboard/ApiSettingsCard";
 import { GenerateCard } from "../components/dashboard/GenerateCard";
 import { RecentTable } from "../components/dashboard/RecentTable";
 import { StatCards } from "../components/dashboard/StatCards";
@@ -12,6 +13,7 @@ export function Dashboard() {
   return (
     <>
       <TopBar />
+      <ApiSettingsCard />
       <GenerateCard onGenerated={setLastResult} />
       {lastResult && (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
