@@ -70,5 +70,5 @@ def test_rejected_policy_uses_fallback_status(memory_settings):
     assert result["harness"]["used_fallback"] is True
     assert "[Fallback]" in result["item"]["question"]
 
-    rows = engine.query_items()
-    assert rows[0]["final_status"] == "fallback"
+    result = engine.query_items()
+    assert result["items"][0]["final_status"] == "fallback"

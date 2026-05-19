@@ -44,6 +44,31 @@ export interface ItemRow {
   metadata: Record<string, unknown>;
 }
 
+export type ItemsSort = "newest" | "oldest" | "quality_desc" | "quality_asc";
+
+export interface ListItemsParams {
+  run_id?: string;
+  subject?: string;
+  skill?: string;
+  difficulty?: number;
+  type?: string;
+  status?: string;
+  q?: string;
+  quality_min?: number;
+  quality_max?: number;
+  has_quality?: boolean;
+  sort?: ItemsSort;
+  page?: number;
+  page_size?: number;
+}
+
+export interface ItemsListResponse {
+  items: ItemRow[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
 export interface DashboardStats {
   total_generated: number;
   success_rate: number;

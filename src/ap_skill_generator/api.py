@@ -1,17 +1,19 @@
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from typing import Literal
+
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ValidationError
 
 from .auth import require_api_key
-from .config import Settings
+from .dependencies import get_settings
 from .engine import APGenerationEngine
 from .rate_limit import RateLimiter, client_ip
 from .schema import GenerateRequest
 from .skills import SkillValidationError
 
-_settings = Settings()
+_settings = get_settings()
 _engine = APGenerationEngine(settings=_settings)
 _rate_limiter = RateLimiter(
     limits={
@@ -54,6 +56,34 @@ class GenerateResponse(BaseModel):
     harness: HarnessInfo
 
 
+ItemsSort = Literal["newest", "oldest", "quality_desc", "quality_asc"]
+
+
+class ItemRowResponse(BaseModel):
+    run_id: str
+    created_at: str
+    subject: str
+    skill: str
+    difficulty: int
+    type: str
+    final_status: str
+    status: str
+    failure_reason_code: str | None = None
+    quality_score: float | None
+    question: str
+    choices: list
+    answer: str
+    explanation: str
+    metadata: dict
+
+
+class ItemsListResponse(BaseModel):
+    items: list[ItemRowResponse]
+    total: int
+    page: int
+    page_size: int
+
+
 @app.get("/config")
 def public_config():
     return {
@@ -83,17 +113,55 @@ def generate(
         raise HTTPException(status_code=500, detail="Internal server error") from exc
 
 
-@app.get("/items")
+@app.get("/items", response_model=ItemsListResponse)
 def items(
     http_request: Request,
+    run_id: str | None = Query(default=None),
     subject: str | None = Query(default=None),
     skill: str | None = Query(default=None),
     difficulty: int | None = Query(default=None),
+    type: str | None = Query(default=None, alias="type"),
+    status: str | None = Query(default=None),
+    q: str | None = Query(default=None),
+    quality_min: float | None = Query(default=None),
+    quality_max: float | None = Query(default=None),
+    has_quality: bool | None = Query(default=None),
+    sort: ItemsSort = Query(default="newest"),
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=50),
     _: None = Depends(require_api_key),
     engine: APGenerationEngine = Depends(get_engine),
 ):
     _rate_limiter.check(client_key=client_ip(http_request), route_key="items")
-    return {"items": engine.query_items(subject=subject, skill=skill, difficulty=difficulty)}
+    search_q = q.strip() if q and q.strip() else None
+    return engine.query_items(
+        run_id=run_id,
+        subject=subject,
+        skill=skill,
+        difficulty=difficulty,
+        item_type=type,
+        status=status,
+        q=search_q,
+        quality_min=quality_min,
+        quality_max=quality_max,
+        has_quality=has_quality,
+        sort=sort,
+        page=page,
+        page_size=page_size,
+    )
+
+
+@app.delete("/items/{run_id}", status_code=204)
+def delete_item(
+    run_id: str,
+    http_request: Request,
+    _: None = Depends(require_api_key),
+    engine: APGenerationEngine = Depends(get_engine),
+):
+    _rate_limiter.check(client_key=client_ip(http_request), route_key="items")
+    if not engine.delete_item(run_id):
+        raise HTTPException(status_code=404, detail="Item not found")
+    return Response(status_code=204)
 
 
 @app.get("/stats")

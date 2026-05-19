@@ -1,4 +1,10 @@
-import type { DashboardStats, GenerateRequest, GenerateResponse, ItemRow } from "./types";
+import type {
+  DashboardStats,
+  GenerateRequest,
+  GenerateResponse,
+  ItemsListResponse,
+  ListItemsParams,
+} from "./types";
 import {
   getEffectiveApiKey,
   getEffectiveLlmApiKey,
@@ -53,6 +59,10 @@ async function request<T>(
     throw new Error(detail || `Request failed (${response.status})`);
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json() as Promise<T>;
 }
 
@@ -71,17 +81,27 @@ export function generate(payload: GenerateRequest): Promise<GenerateResponse> {
   );
 }
 
-export function listItems(params?: {
-  subject?: string;
-  skill?: string;
-  difficulty?: number;
-}): Promise<{ items: ItemRow[] }> {
+export function listItems(params?: ListItemsParams): Promise<ItemsListResponse> {
   const search = new URLSearchParams();
+  if (params?.run_id) search.set("run_id", params.run_id);
   if (params?.subject) search.set("subject", params.subject);
   if (params?.skill) search.set("skill", params.skill);
   if (params?.difficulty !== undefined) search.set("difficulty", String(params.difficulty));
+  if (params?.type) search.set("type", params.type);
+  if (params?.status) search.set("status", params.status);
+  if (params?.q) search.set("q", params.q);
+  if (params?.quality_min !== undefined) search.set("quality_min", String(params.quality_min));
+  if (params?.quality_max !== undefined) search.set("quality_max", String(params.quality_max));
+  if (params?.has_quality !== undefined) search.set("has_quality", String(params.has_quality));
+  if (params?.sort) search.set("sort", params.sort);
+  if (params?.page !== undefined) search.set("page", String(params.page));
+  if (params?.page_size !== undefined) search.set("page_size", String(params.page_size));
   const query = search.toString();
-  return request<{ items: ItemRow[] }>(`/items${query ? `?${query}` : ""}`);
+  return request<ItemsListResponse>(`/items${query ? `?${query}` : ""}`);
+}
+
+export function deleteItem(runId: string): Promise<void> {
+  return request<void>(`/items/${runId}`, { method: "DELETE" });
 }
 
 export function getStats(): Promise<DashboardStats> {

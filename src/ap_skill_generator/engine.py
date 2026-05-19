@@ -175,8 +175,41 @@ class APGenerationEngine:
             },
         }
 
-    def query_items(self, *, subject: str | None = None, skill: str | None = None, difficulty: int | None = None) -> list[dict]:
-        return self.storage.list_items(subject=subject, skill=skill, difficulty=difficulty)
+    def query_items(
+        self,
+        *,
+        run_id: str | None = None,
+        subject: str | None = None,
+        skill: str | None = None,
+        difficulty: int | None = None,
+        item_type: str | None = None,
+        status: str | None = None,
+        q: str | None = None,
+        quality_min: float | None = None,
+        quality_max: float | None = None,
+        has_quality: bool | None = None,
+        sort: str = "newest",
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict:
+        return self.storage.list_items(
+            run_id=run_id,
+            subject=subject,
+            skill=skill,
+            difficulty=difficulty,
+            item_type=item_type,
+            status=status,
+            q=q,
+            quality_min=quality_min,
+            quality_max=quality_max,
+            has_quality=has_quality,
+            sort=sort,
+            page=page,
+            page_size=page_size,
+        )
+
+    def delete_item(self, run_id: str) -> bool:
+        return self.storage.delete_run(run_id)
 
     def get_dashboard_stats(self) -> dict:
         return self.storage.get_dashboard_stats()

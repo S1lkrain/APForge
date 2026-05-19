@@ -12,11 +12,11 @@ interface PracticePageProps {
 export function PracticePage({ runId }: PracticePageProps) {
   const navigate = useNavigate();
   const { data, isLoading, isError, isFetching } = useQuery({
-    queryKey: ["items"],
-    queryFn: () => listItems(),
+    queryKey: ["items", "practice", runId],
+    queryFn: () => listItems({ run_id: runId, page_size: 1 }),
   });
 
-  const item = data?.items.find((row) => row.run_id === runId);
+  const item = data?.items[0];
   const waitingForItem = !item && (isLoading || isFetching);
 
   if (waitingForItem) {

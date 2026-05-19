@@ -1,5 +1,5 @@
 import type { QueryClient } from "@tanstack/react-query";
-import type { GenerateRequest, GenerateResponse, ItemRow } from "../api/types";
+import type { GenerateRequest, GenerateResponse, ItemRow, ItemsListResponse } from "../api/types";
 
 export function mapHarnessToUiStatus(finalStatus: string): ItemRow["status"] {
   if (finalStatus === "accepted") return "Success";
@@ -43,8 +43,13 @@ export function upsertItemInCache(
   queryClient: QueryClient,
   row: ItemRow,
 ): void {
-  queryClient.setQueryData<{ items: ItemRow[] }>(["items"], (old) => {
-    const rest = (old?.items ?? []).filter((item) => item.run_id !== row.run_id);
-    return { items: [row, ...rest] };
+  queryClient.setQueriesData<ItemsListResponse>({ queryKey: ["items", "recent"] }, (old) => {
+    if (!old) return old;
+    const rest = old.items.filter((item) => item.run_id !== row.run_id);
+    return {
+      ...old,
+      items: [row, ...rest].slice(0, old.page_size),
+      total: old.total + (old.items.some((item) => item.run_id === row.run_id) ? 0 : 1),
+    };
   });
 }

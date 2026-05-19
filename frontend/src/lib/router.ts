@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 export function getHashPath(): string {
-  const hash = window.location.hash.replace(/^#/, "") || "/";
-  return hash.startsWith("/") ? hash : `/${hash}`;
+  let hash = window.location.hash.replace(/^#/, "") || "/";
+  hash = hash.startsWith("/") ? hash : `/${hash}`;
+  if (hash.length > 1 && hash.endsWith("/")) {
+    hash = hash.slice(0, -1);
+  }
+  return hash;
 }
 
 export function useHashPath(): string {
@@ -27,4 +31,8 @@ export function useNavigate() {
 export function matchPracticePath(path: string): string | null {
   const match = path.match(/^\/practice\/([^/]+)$/);
   return match ? match[1] : null;
+}
+
+export function isGenerationHistoryPath(path: string): boolean {
+  return path === "/generation-history";
 }

@@ -6,7 +6,7 @@ from .storage import Storage
 
 
 def run_offline_eval(storage: Storage) -> dict:
-    rows = storage.list_items()
+    rows = storage.list_items(page_size=50)["items"]
     evals = []
     for row in rows:
         item = GeneratedItem(

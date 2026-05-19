@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
-from sqlalchemy import JSON, Boolean, DateTime, Integer, String, Text, create_engine, func
+from sqlalchemy import JSON, Boolean, DateTime, Integer, String, Text, create_engine, func, or_
 from sqlalchemy.orm import DeclarativeBase, Mapped, Session, mapped_column
 from sqlalchemy.pool import StaticPool
 
@@ -85,6 +85,95 @@ def map_ui_status(final_status: str) -> str:
     if final_status == "accepted_with_warning":
         return "Warn"
     return "Rejected"
+
+
+VALID_ITEM_SORTS = frozenset({"newest", "oldest", "quality_desc", "quality_asc"})
+
+
+def _escape_like(term: str) -> str:
+    return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+def _like_pattern(q: str) -> str:
+    return f"%{_escape_like(q.strip().lower())}%"
+
+
+def _dedupe_rows(rows: list[tuple]) -> list[tuple]:
+    seen: set[str] = set()
+    deduped: list[tuple] = []
+    for row in rows:
+        run_id = row[1].id
+        if run_id in seen:
+            continue
+        seen.add(run_id)
+        deduped.append(row)
+    return deduped
+
+
+def ui_status_to_final_statuses(status: str) -> list[str] | None:
+    normalized = status.strip().lower()
+    if normalized in ("success", "accepted"):
+        return ["accepted"]
+    if normalized in ("warn", "warning", "accepted_with_warning"):
+        return ["accepted_with_warning"]
+    if normalized in ("rejected", "fallback"):
+        return ["rejected", "fallback"]
+    return None
+
+
+def row_to_item_dict(item: ItemRecord, run: RunRecord, eval_row: EvalRecord | None) -> dict:
+    judge_scores = eval_row.judge_scores if eval_row else {}
+    return {
+        "run_id": run.id,
+        "created_at": run.created_at.isoformat(),
+        "subject": run.subject,
+        "skill": run.skill,
+        "difficulty": run.difficulty,
+        "type": run.item_type,
+        "final_status": run.final_status,
+        "status": map_ui_status(run.final_status),
+        "failure_reason_code": run.failure_reason_code,
+        "quality_score": compute_quality_score(judge_scores),
+        "question": item.question,
+        "choices": json.loads(item.choices),
+        "answer": item.answer,
+        "explanation": item.explanation,
+        "metadata": item.item_metadata,
+    }
+
+
+def _matches_quality_filters(
+    quality_score: float | None,
+    *,
+    quality_min: float | None,
+    quality_max: float | None,
+    has_quality: bool | None,
+) -> bool:
+    if has_quality is True and quality_score is None:
+        return False
+    if has_quality is False and quality_score is not None:
+        return False
+    if quality_min is not None and (quality_score is None or quality_score < quality_min):
+        return False
+    if quality_max is not None and (quality_score is None or quality_score > quality_max):
+        return False
+    return True
+
+
+def _sort_items(items: list[dict], sort: str) -> list[dict]:
+    if sort == "oldest":
+        return sorted(items, key=lambda row: row["created_at"])
+    if sort == "quality_desc":
+        return sorted(
+            items,
+            key=lambda row: (row["quality_score"] is None, -(row["quality_score"] or 0)),
+        )
+    if sort == "quality_asc":
+        return sorted(
+            items,
+            key=lambda row: (row["quality_score"] is None, row["quality_score"] or 0),
+        )
+    return sorted(items, key=lambda row: row["created_at"], reverse=True)
 
 
 @dataclass
@@ -195,44 +284,136 @@ class Storage:
             session.commit()
         return run_id
 
-    def list_items(self, *, subject: str | None = None, skill: str | None = None, difficulty: int | None = None) -> list[dict]:
-        with Session(self.engine) as session:
-            query = (
-                session.query(ItemRecord, RunRecord, EvalRecord)
-                .join(RunRecord, ItemRecord.run_id == RunRecord.id)
-                .outerjoin(EvalRecord, EvalRecord.run_id == RunRecord.id)
+    def _build_items_query(
+        self,
+        session: Session,
+        *,
+        run_id: str | None = None,
+        subject: str | None = None,
+        skill: str | None = None,
+        difficulty: int | None = None,
+        item_type: str | None = None,
+        status: str | None = None,
+        q: str | None = None,
+    ):
+        query = (
+            session.query(ItemRecord, RunRecord, EvalRecord)
+            .join(RunRecord, ItemRecord.run_id == RunRecord.id)
+            .outerjoin(EvalRecord, EvalRecord.run_id == RunRecord.id)
+        )
+        if run_id:
+            query = query.filter(RunRecord.id == run_id)
+        if subject:
+            query = query.filter(RunRecord.subject == subject)
+        if skill:
+            query = query.filter(RunRecord.skill == skill)
+        if difficulty is not None:
+            query = query.filter(RunRecord.difficulty == difficulty)
+        if item_type:
+            query = query.filter(RunRecord.item_type == item_type)
+        if status:
+            final_statuses = ui_status_to_final_statuses(status)
+            if final_statuses:
+                query = query.filter(RunRecord.final_status.in_(final_statuses))
+            else:
+                query = query.filter(RunRecord.final_status == status)
+        if q and q.strip():
+            term = _like_pattern(q)
+            query = query.filter(
+                or_(
+                    func.lower(RunRecord.subject).like(term, escape="\\"),
+                    func.lower(RunRecord.skill).like(term, escape="\\"),
+                    func.lower(RunRecord.item_type).like(term, escape="\\"),
+                    func.lower(ItemRecord.question).like(term, escape="\\"),
+                )
             )
-            if subject:
-                query = query.filter(RunRecord.subject == subject)
-            if skill:
-                query = query.filter(RunRecord.skill == skill)
-            if difficulty is not None:
-                query = query.filter(RunRecord.difficulty == difficulty)
-            rows = query.order_by(RunRecord.created_at.desc()).limit(100).all()
+        return query
 
-        output = []
-        for item, run, eval_row in rows:
-            judge_scores = eval_row.judge_scores if eval_row else {}
-            output.append(
-                {
-                    "run_id": run.id,
-                    "created_at": run.created_at.isoformat(),
-                    "subject": run.subject,
-                    "skill": run.skill,
-                    "difficulty": run.difficulty,
-                    "type": run.item_type,
-                    "final_status": run.final_status,
-                    "status": map_ui_status(run.final_status),
-                    "failure_reason_code": run.failure_reason_code,
-                    "quality_score": compute_quality_score(judge_scores),
-                    "question": item.question,
-                    "choices": json.loads(item.choices),
-                    "answer": item.answer,
-                    "explanation": item.explanation,
-                    "metadata": item.item_metadata,
-                }
+    def list_items(
+        self,
+        *,
+        run_id: str | None = None,
+        subject: str | None = None,
+        skill: str | None = None,
+        difficulty: int | None = None,
+        item_type: str | None = None,
+        status: str | None = None,
+        q: str | None = None,
+        quality_min: float | None = None,
+        quality_max: float | None = None,
+        has_quality: bool | None = None,
+        sort: str = "newest",
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict:
+        if sort not in VALID_ITEM_SORTS:
+            raise ValueError(f"Invalid sort: {sort}")
+
+        page = max(1, page)
+        page_size = max(1, min(page_size, 50))
+        offset = (page - 1) * page_size
+
+        needs_python_quality = (
+            quality_min is not None
+            or quality_max is not None
+            or has_quality is not None
+            or sort in ("quality_desc", "quality_asc")
+        )
+
+        with Session(self.engine) as session:
+            query = self._build_items_query(
+                session,
+                run_id=run_id,
+                subject=subject,
+                skill=skill,
+                difficulty=difficulty,
+                item_type=item_type,
+                status=status,
+                q=q,
             )
-        return output
+
+            if needs_python_quality:
+                rows = _dedupe_rows(query.all())
+                items = [row_to_item_dict(item, run, eval_row) for item, run, eval_row in rows]
+                items = [
+                    row
+                    for row in items
+                    if _matches_quality_filters(
+                        row["quality_score"],
+                        quality_min=quality_min,
+                        quality_max=quality_max,
+                        has_quality=has_quality,
+                    )
+                ]
+                items = _sort_items(items, sort)
+                total = len(items)
+                page_items = items[offset : offset + page_size]
+            else:
+                total = query.with_entities(RunRecord.id).distinct().count()
+                if sort == "oldest":
+                    query = query.order_by(RunRecord.created_at.asc())
+                else:
+                    query = query.order_by(RunRecord.created_at.desc())
+                rows = _dedupe_rows(query.offset(offset).limit(page_size).all())
+                page_items = [row_to_item_dict(item, run, eval_row) for item, run, eval_row in rows]
+
+        return {
+            "items": page_items,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+        }
+
+    def delete_run(self, run_id: str) -> bool:
+        with Session(self.engine) as session:
+            run = session.get(RunRecord, run_id)
+            if run is None:
+                return False
+            session.query(EvalRecord).filter(EvalRecord.run_id == run_id).delete()
+            session.query(ItemRecord).filter(ItemRecord.run_id == run_id).delete()
+            session.delete(run)
+            session.commit()
+            return True
 
     def get_dashboard_stats(self) -> dict:
         now = datetime.now(timezone.utc)

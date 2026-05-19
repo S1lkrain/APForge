@@ -1,5 +1,8 @@
 export const SUBJECT_LABELS: Record<string, string> = {
   ap_precalculus: "AP Precalculus",
+  ap_calculus_ab: "AP Calculus AB",
+  ap_calculus_bc: "AP Calculus BC",
+  ap_statistics: "AP Statistics",
 };
 
 export const TOPIC_OPTIONS = [
@@ -20,6 +23,17 @@ export function formatDate(iso: string): string {
     month: "short",
     day: "numeric",
     year: "numeric",
+  });
+}
+
+export function formatDateTime(iso: string): string {
+  const date = new Date(iso);
+  return date.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 

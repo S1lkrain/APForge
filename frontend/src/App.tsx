@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AppShell } from "./components/layout/AppShell";
 import { Dashboard } from "./pages/Dashboard";
+import { GenerationHistoryPage } from "./pages/GenerationHistoryPage";
 import { PracticePage } from "./pages/PracticePage";
-import { matchPracticePath, useHashPath } from "./lib/router";
+import { isGenerationHistoryPath, matchPracticePath, useHashPath } from "./lib/router";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,6 +20,10 @@ function AppRoutes() {
 
   if (practiceRunId) {
     return <PracticePage runId={practiceRunId} />;
+  }
+
+  if (isGenerationHistoryPath(path)) {
+    return <GenerationHistoryPage />;
   }
 
   return <Dashboard />;

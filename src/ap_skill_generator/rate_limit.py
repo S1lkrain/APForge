@@ -28,6 +28,9 @@ class RateLimiter:
             raise HTTPException(status_code=429, detail="Rate limit exceeded")
         hits.append(now)
 
+    def reset(self) -> None:
+        self._hits.clear()
+
 
 def client_ip(request: Request) -> str:
     forwarded = request.headers.get("X-Forwarded-For")

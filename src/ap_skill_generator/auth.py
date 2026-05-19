@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from fastapi import Header, HTTPException
+from fastapi import Depends, Header, HTTPException
 
 from .config import Settings
+from .dependencies import get_settings
 
 
 def _extract_bearer_token(authorization: str | None) -> str | None:
@@ -32,5 +33,6 @@ def verify_api_key(
 def require_api_key(
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
     authorization: str | None = Header(default=None),
+    settings: Settings = Depends(get_settings),
 ) -> None:
-    verify_api_key(x_api_key=x_api_key, authorization=authorization, settings=Settings())
+    verify_api_key(x_api_key=x_api_key, authorization=authorization, settings=settings)

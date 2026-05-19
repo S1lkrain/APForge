@@ -47,9 +47,10 @@ def test_engine_generate_and_query():
     result = engine.generate(req)
     assert "run_id" in result
 
-    rows = engine.query_items(subject="ap_precalculus")
-    assert len(rows) == 1
-    assert rows[0]["answer"] == "B"
+    result = engine.query_items(subject="ap_precalculus")
+    assert result["total"] == 1
+    assert len(result["items"]) == 1
+    assert result["items"][0]["answer"] == "B"
 
 
 def test_engine_generate_with_empty_api_key_uses_offline_stub():
