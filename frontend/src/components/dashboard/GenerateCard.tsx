@@ -8,29 +8,32 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { generate } from "../../api/client";
-import type { GenerateRequest, QuestionType, Subject } from "../../api/types";
+import type { GenerateRequest, Subject } from "../../api/types";
 import { TOPIC_OPTIONS } from "../../lib/format";
+import { buildItemRowFromGenerate, upsertItemInCache } from "../../lib/itemsCache";
 
 interface GenerateCardProps {
   onGenerated?: (result: { run_id: string; status: string }) => void;
+  onPracticeNavigate?: (runId: string) => void;
 }
 
-export function GenerateCard({ onGenerated }: GenerateCardProps) {
+export function GenerateCard({ onGenerated, onPracticeNavigate }: GenerateCardProps) {
   const queryClient = useQueryClient();
   const [subject] = useState<Subject>("ap_precalculus");
   const [skill, setSkill] = useState("limits");
   const [customSkill, setCustomSkill] = useState("");
-  const [type, setType] = useState<QuestionType>("mcq");
   const [difficulty, setDifficulty] = useState(3);
   const [error, setError] = useState<string | null>(null);
 
   const mutation = useMutation({
     mutationFn: (payload: GenerateRequest) => generate(payload),
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       setError(null);
+      upsertItemInCache(queryClient, buildItemRowFromGenerate(data, variables));
       void queryClient.invalidateQueries({ queryKey: ["items"] });
       void queryClient.invalidateQueries({ queryKey: ["stats"] });
       onGenerated?.({ run_id: data.run_id, status: data.harness.status });
+      onPracticeNavigate?.(data.run_id);
     },
     onError: (err: Error) => {
       setError(err.message);
@@ -49,7 +52,7 @@ export function GenerateCard({ onGenerated }: GenerateCardProps) {
       subject,
       skill: resolvedSkill,
       difficulty,
-      type,
+      type: "mcq",
     });
   }
 
@@ -91,20 +94,16 @@ export function GenerateCard({ onGenerated }: GenerateCardProps) {
             </select>
           </label>
 
-          <label className="block">
+          <div className="block">
             <span className="mb-1.5 flex items-center gap-2 text-sm font-medium text-slate-700">
               <ListChecks className="h-4 w-4 text-brand" />
               Question Type
             </span>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value as QuestionType)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
-            >
-              <option value="mcq">Multiple Choice</option>
-              <option value="frq">Free Response</option>
-            </select>
-          </label>
+            <div className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-700">
+              Multiple Choice
+            </div>
+            <p className="mt-1 text-xs text-slate-muted">Free response is coming soon.</p>
+          </div>
         </div>
 
         {skill === "custom" && (

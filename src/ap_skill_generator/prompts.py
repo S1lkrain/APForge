@@ -9,7 +9,7 @@ def system_prompt() -> str:
     return (
         "You are an AP-style educational content generator. "
         "Output only valid JSON. Do not use copyrighted or real AP exam items. "
-        "Generate original content. Keep language concise and pedagogically clear."
+        "Generate original content. Keep language concise and pedagogically clear. Use LaTeX inside $...$ for mathematical notation (e.g. $\\frac{dy}{dx}$, $\\lim_{x \\to 0}$)."
     )
 
 

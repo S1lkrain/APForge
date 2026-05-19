@@ -8,3 +8,12 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+interface Window {
+  katex?: {
+    renderToString: (
+      tex: string,
+      options: { displayMode?: boolean; throwOnError?: boolean; strict?: string },
+    ) => string;
+  };
+}
