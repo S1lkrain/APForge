@@ -3,6 +3,7 @@ import {
   BookOpen,
   Layers,
   ListChecks,
+  Loader2,
   Sparkles,
   Target,
 } from "lucide-react";
@@ -20,7 +21,7 @@ interface GenerateCardProps {
 export function GenerateCard({ onGenerated, onPracticeNavigate }: GenerateCardProps) {
   const queryClient = useQueryClient();
   const [subject] = useState<Subject>("ap_precalculus");
-  const [skill, setSkill] = useState("limits");
+  const [skill, setSkill] = useState("rates-of-change");
   const [customSkill, setCustomSkill] = useState("");
   const [difficulty, setDifficulty] = useState(3);
   const [error, setError] = useState<string | null>(null);
@@ -113,7 +114,7 @@ export function GenerateCard({ onGenerated, onPracticeNavigate }: GenerateCardPr
               type="text"
               value={customSkill}
               onChange={(e) => setCustomSkill(e.target.value)}
-              placeholder="e.g. limits"
+              placeholder="e.g. rates-of-change"
               className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20"
             />
           </label>
@@ -147,9 +148,13 @@ export function GenerateCard({ onGenerated, onPracticeNavigate }: GenerateCardPr
         <button
           type="submit"
           disabled={mutation.isPending}
-          className="mx-auto flex w-full max-w-md items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mx-auto flex w-full max-w-md items-center justify-center gap-2 rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow-md transition-[transform,colors] duration-150 hover:bg-blue-600 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
         >
-          <Sparkles className="h-4 w-4" />
+          {mutation.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
           {mutation.isPending ? "Generating…" : "Generate Question"}
         </button>
       </form>

@@ -5,13 +5,8 @@ export const SUBJECT_LABELS: Record<string, string> = {
   ap_statistics: "AP Statistics",
 };
 
-export const TOPIC_OPTIONS = [
-  { value: "limits", label: "Limits" },
-  { value: "linear-functions", label: "Linear Functions" },
-  { value: "polynomials", label: "Polynomials" },
-  { value: "trigonometry", label: "Trigonometry" },
-  { value: "exponential-functions", label: "Exponential Functions" },
-];
+export { TOPIC_OPTIONS } from "./topics";
+export type { TopicOption } from "./topics";
 
 export function formatSubject(subject: string): string {
   return SUBJECT_LABELS[subject] ?? subject;

@@ -24,6 +24,10 @@ def test_find_pattern_resolves_api_slug_aliases():
     assert pattern is not None
     assert pattern.id == "rates_of_change_mcq"
 
+    primary = find_pattern("", "rates-of-change")
+    assert primary is not None
+    assert primary.id == "rates_of_change_mcq"
+
 
 def test_find_pattern_resolves_linear_functions_slug():
     pattern = find_pattern("", "linear-functions")

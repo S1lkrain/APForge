@@ -36,18 +36,33 @@ Part B emphasizes calculator-friendly tables, regression output, and approximate
 - **Composition**: reversing input/output meaning in applied composition (Q23).
 - **Rates**: confusing function value with rate of change; concavity from decreasing tables (Q16, Q21, Q82).
 
-## Skill slug → pattern skill (for API `GenerateRequest.skill`)
+## Topic slug → pattern (authoritative: `data/topic_registry.json`)
 
-| API / slug (examples) | Match pattern skill |
-|------------------------|---------------------|
-| `amplitude-and-period`, `sinusoidal-functions` | Sinusoidal Functions |
-| `limits`, `rates-of-change` | Rates of Change |
-| `linear-functions` | Rates of Change |
-| `exponential-growth`, `exponential-decay` | Exponential Growth and Decay |
-| `rational-functions`, `asymptotes` | Asymptotes |
-| `logarithms`, `log-expressions` | Logarithmic Expressions |
-| `polar`, `polar-functions` | Polar Function Graphs |
-| `regression`, `data-modeling` | Competing Function Model Validation |
-| `end-behavior` | End Behavior |
+Primary UI/API slugs (stored in DB when generating from the dashboard):
 
-Patterns match on normalized `skill` strings; see `pattern_loader._SKILL_ALIASES`.
+| Slug | UI label | Pattern ID |
+|------|----------|------------|
+| `rates-of-change` | Rates of Change | `rates_of_change_mcq` |
+| `end-behavior` | End Behavior | `polynomial_end_behavior_mcq` |
+| `asymptotes` | Asymptotes | `rational_asymptotes_mcq` |
+| `exponential-growth` | Exponential Growth & Decay | `exponential_growth_mcq` |
+| `logarithms` | Logarithmic Expressions | `logarithmic_expressions_mcq` |
+| `sinusoidal-functions` | Sinusoidal Functions | `periodic_amplitude_mcq` |
+| `sinusoidal-modeling` | Sinusoidal Modeling | `sinusoidal_modeling_mcq` |
+| `polar-functions` | Polar Functions | `polar_functions_mcq` |
+| `data-modeling` | Data Modeling & Regression | `data_modeling_regression_mcq` |
+
+Legacy slugs (API/backward compatibility only; not shown in the topic dropdown):
+
+| Legacy slug | Pattern ID |
+|-------------|------------|
+| `limits`, `linear-functions` | `rates_of_change_mcq` |
+| `polynomials` | `polynomial_end_behavior_mcq` |
+| `trigonometry`, `amplitude-and-period` | `periodic_amplitude_mcq` |
+| `exponential-functions`, `exponential-decay` | `exponential_growth_mcq` |
+| `rational-functions` | `rational_asymptotes_mcq` |
+| `log-expressions` | `logarithmic_expressions_mcq` |
+| `polar` | `polar_functions_mcq` |
+| `regression` | `data_modeling_regression_mcq` |
+
+Aliases are built at runtime from the registry in `pattern_loader.py` (not hardcoded).

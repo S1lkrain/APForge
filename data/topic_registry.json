@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "topics": [
+    {
+      "slug": "rates-of-change",
+      "label": "Rates of Change",
+      "pattern_id": "rates_of_change_mcq",
+      "legacy_slugs": ["limits", "linear-functions", "rates-of-change"]
+    },
+    {
+      "slug": "end-behavior",
+      "label": "End Behavior",
+      "pattern_id": "polynomial_end_behavior_mcq",
+      "legacy_slugs": ["polynomials", "end-behavior"]
+    },
+    {
+      "slug": "asymptotes",
+      "label": "Asymptotes",
+      "pattern_id": "rational_asymptotes_mcq",
+      "legacy_slugs": ["rational-functions", "asymptotes"]
+    },
+    {
+      "slug": "exponential-growth",
+      "label": "Exponential Growth & Decay",
+      "pattern_id": "exponential_growth_mcq",
+      "legacy_slugs": ["exponential-functions", "exponential-decay", "exponential-growth"]
+    },
+    {
+      "slug": "logarithms",
+      "label": "Logarithmic Expressions",
+      "pattern_id": "logarithmic_expressions_mcq",
+      "legacy_slugs": ["log-expressions", "logarithms"]
+    },
+    {
+      "slug": "sinusoidal-functions",
+      "label": "Sinusoidal Functions",
+      "pattern_id": "periodic_amplitude_mcq",
+      "legacy_slugs": ["trigonometry", "amplitude-and-period", "sinusoidal-functions"]
+    },
+    {
+      "slug": "sinusoidal-modeling",
+      "label": "Sinusoidal Modeling",
+      "pattern_id": "sinusoidal_modeling_mcq",
+      "legacy_slugs": ["sinusoidal-modeling"]
+    },
+    {
+      "slug": "polar-functions",
+      "label": "Polar Functions",
+      "pattern_id": "polar_functions_mcq",
+      "legacy_slugs": ["polar", "polar-functions"]
+    },
+    {
+      "slug": "data-modeling",
+      "label": "Data Modeling & Regression",
+      "pattern_id": "data_modeling_regression_mcq",
+      "legacy_slugs": ["regression", "data-modeling"]
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import {
   qualityColor,
   statusStyles,
 } from "../../lib/format";
+import { Skeleton } from "../ui/Skeleton";
 
 interface GenerationsTableProps {
   rows: ItemRow[];
@@ -29,6 +30,8 @@ export function GenerationsTable({
   onDelete,
   deletingRunId = null,
 }: GenerationsTableProps) {
+  const skeletonRows = Array.from({ length: 5 }, (_, i) => i);
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[800px] text-left text-sm">
@@ -62,13 +65,35 @@ export function GenerationsTable({
           </tr>
         </thead>
         <tbody>
-          {isLoading && (
-            <tr>
-              <td colSpan={8} className="px-6 py-8 text-center text-slate-muted">
-                Loading…
-              </td>
-            </tr>
-          )}
+          {isLoading &&
+            skeletonRows.map((rowIndex) => (
+              <tr key={rowIndex} className="border-b border-slate-50">
+                <td className="px-6 py-3.5">
+                  <Skeleton className="h-4 w-28" />
+                </td>
+                <td className="px-4 py-3.5">
+                  <Skeleton className="h-4 w-20" />
+                </td>
+                <td className="px-4 py-3.5">
+                  <Skeleton className="h-4 w-24" />
+                </td>
+                <td className="px-4 py-3.5">
+                  <Skeleton className="h-4 w-10" />
+                </td>
+                <td className="px-4 py-3.5">
+                  <Skeleton className="h-7 w-7 rounded-full" />
+                </td>
+                <td className="px-4 py-3.5">
+                  <Skeleton className="h-4 w-8" />
+                </td>
+                <td className="px-4 py-3.5">
+                  <Skeleton className="h-5 w-16 rounded-full" />
+                </td>
+                <td className="px-6 py-3.5">
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </td>
+              </tr>
+            ))}
           {isError && (
             <tr>
               <td colSpan={8} className="px-6 py-8 text-center text-error">

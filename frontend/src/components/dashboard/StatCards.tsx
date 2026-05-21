@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Activity, BarChart2, CheckCircle2, Sparkles } from "lucide-react";
 import { getStats } from "../../api/client";
 import { formatDelta, formatPercent } from "../../lib/format";
+import { Skeleton } from "../ui/Skeleton";
 
 const cards = [
   {
@@ -38,6 +39,21 @@ const cards = [
   },
 ];
 
+function StatCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm">
+      <div className="flex items-start justify-between">
+        <div>
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="mt-2 h-8 w-16" />
+          <Skeleton className="mt-1 h-3 w-20" />
+        </div>
+        <Skeleton className="h-10 w-10 shrink-0 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
 export function StatCards() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ["stats"],
@@ -48,10 +64,7 @@ export function StatCards() {
     return (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card) => (
-          <div
-            key={card.key}
-            className="h-28 animate-pulse rounded-xl border border-slate-100 bg-white"
-          />
+          <StatCardSkeleton key={card.key} />
         ))}
       </div>
     );
@@ -66,8 +79,8 @@ export function StatCards() {
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {cards.map((card) => {
+    <div className="stat-cards-enter grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {cards.map((card, index) => {
         const Icon = card.icon;
         const value = data[card.key];
         const delta = data.week_delta[card.key];
@@ -81,7 +94,8 @@ export function StatCards() {
         return (
           <article
             key={card.key}
-            className="rounded-xl border border-slate-100 bg-white p-5 shadow-sm"
+            className="animate-fade-in-up rounded-xl border border-slate-100 bg-white p-5 opacity-0 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+            style={{ animationDelay: `${index * 50}ms` }}
           >
             <div className="flex items-start justify-between">
               <div>

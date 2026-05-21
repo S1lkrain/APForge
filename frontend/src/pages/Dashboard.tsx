@@ -21,7 +21,7 @@ export function Dashboard() {
         onPracticeNavigate={(runId) => navigate(`/practice/${runId}`)}
       />
       {lastResult && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
+        <p className="animate-banner-enter rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
           Generated run <span className="font-mono text-xs">{lastResult.run_id}</span> — status:{" "}
           <span className="font-medium">{lastResult.status}</span>
         </p>
