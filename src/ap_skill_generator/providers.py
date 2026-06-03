@@ -8,6 +8,7 @@ from typing import Protocol
 import httpx
 
 from .config import Settings
+from .logging_utils import safe_exception_message
 
 OFFLINE_MODEL_ID = "offline-default-stub"
 _RETRYABLE_STATUS = {429, 500, 502, 503, 504}
@@ -121,8 +122,8 @@ class OpenAICompatibleProvider:
                 if attempt < attempts - 1:
                     time.sleep(min(2**attempt, 8))
                     continue
-                raise
+                raise RuntimeError(safe_exception_message(exc)) from None
 
         if last_error:
-            raise last_error
+            raise RuntimeError(safe_exception_message(last_error)) from None
         raise RuntimeError("LLM request failed without a captured error")
