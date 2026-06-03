@@ -1,0 +1,81 @@
+skill_id: ap_precalculus.data_modeling
+status: draft
+subject: ap_precalculus
+category: data_modeling
+
+metadata:
+  display_name: "Data Modeling & Regression"
+
+core_reasoning:
+  summary: >
+    Choose or validate function models using tables, residual reasoning,
+    semi-log plots, or regression predictions.
+  cognitive_actions:
+    - interpret
+    - predict
+    - validate
+  reasoning_steps:
+    - "Examine table patterns (first differences, ratios) to suggest a model type."
+    - "Use residual or semi-log plot reasoning to confirm or reject a model."
+    - "Apply regression output to make or evaluate a prediction in context."
+    - "Select the model or statement best supported by the data evidence."
+  anti_patterns:
+    - "Choosing model type from a single data point"
+    - "Ignoring whether residuals show systematic over- or under-estimation"
+
+question_archetypes:
+  - id: model_type_from_table
+    description: "Select the best function type for tabular data."
+    stem_patterns:
+      - "Which type of function is best modeled by the data in the table?"
+      - "Which of the following statements is true about the model for the data?"
+    formats: [mcq]
+
+  - id: regression_prediction
+    description: "Use a regression model to evaluate a prediction or claim."
+    stem_patterns:
+      - "A regression is used to model the data. Which value is predicted for $x = ...$?"
+      - "Which statement about the regression model is true?"
+    formats: [mcq]
+
+  - id: semi_log_validation
+    description: "Use a semi-log plot or residual pattern to validate a model."
+    stem_patterns:
+      - "The semi-log plot of the data is approximately linear. Which model is supported?"
+      - "Based on the residual plot, which statement about the model is true?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: linear_vs_quadratic_from_differences
+    description: "Chooses wrong model from difference patterns"
+    failure_mode: "Picks linear when second differences are constant, or quadratic when first differences are constant"
+    generation_hints:
+      - "One distractor misreads first vs second differences"
+
+  - id: overestimate_vs_underestimate_residual
+    description: "Misinterprets systematic residual pattern"
+    failure_mode: "Claims good fit when residuals show clear trend"
+    generation_hints:
+      - "Include a distractor ignoring a systematic residual pattern"
+
+  - id: wrong_regression_degree
+    description: "Selects wrong polynomial degree for regression"
+    failure_mode: "Uses quadratic when data suggest linear, or vice versa"
+    generation_hints:
+      - "One distractor uses an inappropriately high degree"
+
+  - id: semi_log_model_type_confusion
+    description: "Misidentifies model type from semi-log linearity"
+    failure_mode: "Chooses linear when semi-log linearity indicates exponential"
+    generation_hints:
+      - "Include a distractor selecting linear for semi-log linear data"
+
+prompt_constraints:
+  generation_rules:
+    - "Include a table, residual description, or semi-log context"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+    - "Require data reasoning, not calculator button memorization"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Questions without any data or model context"

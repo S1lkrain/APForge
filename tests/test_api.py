@@ -4,7 +4,11 @@ import pytest
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
-from ap_skill_generator.api import _rate_limiter, app, get_engine
+import ap_skill_generator.api as api_mod
+from ap_skill_generator.api import _byok_store, _rate_limiter, app, get_engine
+from ap_skill_generator.routing import FreeSampleQuota, ModelRouter
+
+TEST_SESSION = "00000000-0000-4000-8000-000000000001"
 from ap_skill_generator.auth import verify_api_key
 from ap_skill_generator.config import Settings
 from ap_skill_generator.dependencies import get_settings, reset_settings
@@ -20,8 +24,20 @@ def api_client():
     engine = APGenerationEngine(settings=settings)
     app.dependency_overrides[get_engine] = lambda: engine
     app.dependency_overrides[get_settings] = lambda: settings
-    yield TestClient(app)
+    api_mod._settings = settings
+    api_mod._quota = FreeSampleQuota(settings)
+    api_mod._router = ModelRouter(
+        settings=settings,
+        byok_store=_byok_store,
+        quota=api_mod._quota,
+    )
+    _byok_store._entries.clear()
+    _byok_store.set(TEST_SESSION, api_key="")
+    client = TestClient(app)
+    client.headers.update({"X-APForge-Session": TEST_SESSION})
+    yield client
     app.dependency_overrides.clear()
+    _byok_store._entries.clear()
     reset_settings()
     _rate_limiter.reset()
 
@@ -38,10 +54,20 @@ def authed_client():
     engine = APGenerationEngine(settings=settings)
     app.dependency_overrides[get_engine] = lambda: engine
     app.dependency_overrides[get_settings] = lambda: settings
+    api_mod._settings = settings
+    api_mod._quota = FreeSampleQuota(settings)
+    api_mod._router = ModelRouter(
+        settings=settings,
+        byok_store=_byok_store,
+        quota=api_mod._quota,
+    )
+    _byok_store._entries.clear()
+    _byok_store.set(TEST_SESSION, api_key="")
     client = TestClient(app)
-    client.headers.update({"X-API-Key": "secret-test-key"})
+    client.headers.update({"X-API-Key": "secret-test-key", "X-APForge-Session": TEST_SESSION})
     yield client
     app.dependency_overrides.clear()
+    _byok_store._entries.clear()
     reset_settings()
     _rate_limiter.reset()
 
@@ -84,9 +110,11 @@ def test_health_endpoint(api_client):
 
 def test_config_endpoint(api_client):
     body = api_client.get("/config").json()
-    assert set(body) == {"api_auth_required", "llm_configured"}
-    assert isinstance(body["api_auth_required"], bool)
-    assert isinstance(body["llm_configured"], bool)
+    assert body["api_auth_required"] is False
+    assert body["llm_configured"] is False
+    assert isinstance(body["core_configured"], bool)
+    assert isinstance(body["free_sample_available"], bool)
+    assert body["byok_connected"] is True
 
 
 def test_items_include_quality_and_status(api_client):

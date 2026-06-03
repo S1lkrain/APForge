@@ -1,0 +1,79 @@
+skill_id: ap_precalculus.logarithmic_expressions
+status: draft
+subject: ap_precalculus
+category: exponential_logarithmic_functions
+
+metadata:
+  display_name: "Logarithmic Expressions"
+
+core_reasoning:
+  summary: >
+    Evaluate logarithmic expressions, apply log properties, and compose
+    logarithms with exponentials in concise symbolic items.
+  cognitive_actions:
+    - compute
+    - transform
+  reasoning_steps:
+    - "Identify the base and argument of each logarithmic expression."
+    - "Apply log properties (product, quotient, power) to rewrite or simplify."
+    - "Use inverse relationships between logs and exponentials when composing functions."
+    - "Verify domain restrictions before selecting an equivalent expression."
+  anti_patterns:
+    - "Applying log properties without checking domain"
+    - "Confusing log of a product with product of logs incorrectly"
+
+question_archetypes:
+  - id: domain_input_value
+    description: "Find an input in the domain that satisfies a log equation."
+    stem_patterns:
+      - "What input value in the domain of f satisfies the given condition?"
+      - "For what value of x is the expression defined?"
+    formats: [mcq]
+
+  - id: equivalent_log_expression
+    description: "Select an equivalent logarithmic expression using properties."
+    stem_patterns:
+      - "Which of the following is equivalent to the given expression?"
+      - "Which expression is equal to $\\log_b(...)$ for all values in the domain?"
+    formats: [mcq]
+
+  - id: log_exponential_composition
+    description: "Evaluate or rewrite a composition of log and exponential functions."
+    stem_patterns:
+      - "Which of the following is an expression for $f(g(x))$?"
+      - "Which value is equal to $\\ln(e^{...})$ for the given expression?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: log_property_power_vs_factor
+    description: "Misapplies the power rule or product rule"
+    failure_mode: "Moves exponent incorrectly or splits log of product wrong"
+    generation_hints:
+      - "One distractor applies $\\log(ab) = \\log a + \\log b$ in reverse incorrectly"
+
+  - id: wrong_log_base_inverse
+    description: "Uses the wrong base when inverting exponentials"
+    failure_mode: "Confuses $\\log_b$ and $\\ln$ or uses wrong inverse pair"
+    generation_hints:
+      - "Include a distractor with the wrong logarithmic base"
+
+  - id: composition_domain_error
+    description: "Ignores domain restrictions in a composition"
+    failure_mode: "Accepts an expression valid only for a subset of the domain"
+    generation_hints:
+      - "One distractor is equivalent only for positive arguments"
+
+  - id: ln_exp_algebra_slip
+    description: "Makes an algebra error with ln and e"
+    failure_mode: "Treats $\\ln(e^x)$ as $e^x$ or drops a coefficient"
+    generation_hints:
+      - "Include a distractor from a common ln/exp simplification mistake"
+
+prompt_constraints:
+  generation_rules:
+    - "Keep items symbolic and concise; avoid lengthy computation chains"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Expressions with undefined or negative arguments without domain discussion"

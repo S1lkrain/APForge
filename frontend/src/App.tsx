@@ -3,7 +3,13 @@ import { AppShell } from "./components/layout/AppShell";
 import { Dashboard } from "./pages/Dashboard";
 import { GenerationHistoryPage } from "./pages/GenerationHistoryPage";
 import { PracticePage } from "./pages/PracticePage";
-import { isGenerationHistoryPath, matchPracticePath, useHashPath } from "./lib/router";
+import {
+  isGenerationHistoryPath,
+  matchPracticePath,
+  matchSamplePracticePath,
+  useHashPath,
+} from "./lib/router";
+import { SamplePracticePage } from "./pages/SamplePracticePage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,7 +22,17 @@ const queryClient = new QueryClient({
 
 function AppRoutes() {
   const path = useHashPath();
+  const samplePractice = matchSamplePracticePath(path);
   const practiceRunId = matchPracticePath(path);
+
+  if (samplePractice) {
+    return (
+      <SamplePracticePage
+        sampleId={samplePractice.sampleId}
+        index={samplePractice.index}
+      />
+    );
+  }
 
   if (practiceRunId) {
     return <PracticePage runId={practiceRunId} />;

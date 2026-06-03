@@ -1,28 +1,35 @@
 from __future__ import annotations
 
-from typing import Literal
+import re
+import uuid
+from typing import Any, Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from .auth import require_api_key
 from .dependencies import get_settings
 from .engine import APGenerationEngine
 from .rate_limit import RateLimiter, client_ip
+from .routing import ByokCredentialStore, FreeSampleQuota, ModelRouter
 from .schema import GenerateRequest
 from .skills import SkillValidationError
 
 _settings = get_settings()
+_byok_store = ByokCredentialStore(ttl_seconds=_settings.byok_credential_ttl_seconds)
+_quota = FreeSampleQuota(_settings)
+_router = ModelRouter(settings=_settings, byok_store=_byok_store, quota=_quota)
 _engine = APGenerationEngine(settings=_settings)
 _rate_limiter = RateLimiter(
     limits={
         "generate": (_settings.rate_limit_generate, 60),
+        "generate_sample": (_settings.rate_limit_generate_sample, 60),
         "items": (_settings.rate_limit_items, 60),
     }
 )
 
-app = FastAPI(title="AP Skill Generator API", version="0.2.0")
+app = FastAPI(title="AP Skill Generator API", version="0.3.0")
 
 if _settings.cors_origins.strip():
     app.add_middleware(
@@ -32,9 +39,31 @@ if _settings.cors_origins.strip():
         allow_headers=["*"],
     )
 
+_SESSION_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
 
 def get_engine() -> APGenerationEngine:
     return _engine
+
+
+def get_model_router() -> ModelRouter:
+    return _router
+
+
+def get_byok_store() -> ByokCredentialStore:
+    return _byok_store
+
+
+def resolve_session_id(
+    x_apforge_session: str | None = Header(default=None, alias="X-APForge-Session"),
+) -> str:
+    raw = (x_apforge_session or "").strip()
+    if raw and _SESSION_RE.match(raw):
+        return raw
+    return str(uuid.uuid4())
 
 
 class HarnessInfo(BaseModel):
@@ -56,6 +85,19 @@ class GenerateResponse(BaseModel):
     harness: HarnessInfo
 
 
+class SampleGenerateResponse(BaseModel):
+    sample_id: str
+    items: list[dict[str, Any]]
+    validation_report: dict[str, Any]
+    claim_status: str
+    usable_count: int
+
+
+class ByokCredentialsRequest(BaseModel):
+    api_key: str = Field(min_length=1)
+    model: str | None = None
+
+
 ItemsSort = Literal["newest", "oldest", "quality_desc", "quality_asc"]
 
 
@@ -75,6 +117,7 @@ class ItemRowResponse(BaseModel):
     answer: str
     explanation: str
     metadata: dict
+    visual: dict | None = None
 
 
 class ItemsListResponse(BaseModel):
@@ -85,11 +128,44 @@ class ItemsListResponse(BaseModel):
 
 
 @app.get("/config")
-def public_config():
+def public_config(
+    session_id: str = Depends(resolve_session_id),
+    router: ModelRouter = Depends(get_model_router),
+):
     return {
         "api_auth_required": bool(_settings.api_key.strip()),
         "llm_configured": bool(_settings.openai_api_key.strip()),
+        "core_configured": router.core_configured(),
+        "free_sample_available": router.free_sample_available(session_id),
+        "byok_connected": _byok_store.has(session_id),
+        "free_max_repair": _settings.free_max_repair,
+        "byok_max_repair": _settings.byok_max_repair,
+        "free_sample_size": _settings.free_sample_size,
+        "free_sample_min_usable": _settings.free_sample_min_usable,
     }
+
+
+@app.post("/byok/credentials", status_code=204)
+def store_byok_credentials(
+    payload: ByokCredentialsRequest,
+    session_id: str = Depends(resolve_session_id),
+    _: None = Depends(require_api_key),
+    store: ByokCredentialStore = Depends(get_byok_store),
+):
+    if not payload.api_key.strip():
+        raise HTTPException(status_code=422, detail="api_key is required")
+    store.set(session_id, api_key=payload.api_key, model=payload.model)
+    return Response(status_code=204)
+
+
+@app.delete("/byok/credentials", status_code=204)
+def delete_byok_credentials(
+    session_id: str = Depends(resolve_session_id),
+    _: None = Depends(require_api_key),
+    store: ByokCredentialStore = Depends(get_byok_store),
+):
+    store.delete(session_id)
+    return Response(status_code=204)
 
 
 @app.post("/generate", response_model=GenerateResponse)
@@ -98,11 +174,13 @@ def generate(
     http_request: Request,
     _: None = Depends(require_api_key),
     engine: APGenerationEngine = Depends(get_engine),
-    x_llm_api_key: str | None = Header(default=None, alias="X-LLM-API-Key"),
+    router: ModelRouter = Depends(get_model_router),
+    session_id: str = Depends(resolve_session_id),
 ):
     _rate_limiter.check(client_key=client_ip(http_request), route_key="generate")
+    route = router.resolve_for_generate(session_id)
     try:
-        return engine.generate(payload, llm_api_key=x_llm_api_key)
+        return engine.generate(payload, route=route)
     except SkillValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except ValidationError as exc:
@@ -113,10 +191,51 @@ def generate(
         raise HTTPException(status_code=500, detail="Internal server error") from exc
 
 
+@app.post("/generate/sample", response_model=SampleGenerateResponse)
+def generate_sample(
+    payload: GenerateRequest,
+    http_request: Request,
+    _: None = Depends(require_api_key),
+    engine: APGenerationEngine = Depends(get_engine),
+    router: ModelRouter = Depends(get_model_router),
+    session_id: str = Depends(resolve_session_id),
+):
+    _rate_limiter.check(client_key=client_ip(http_request), route_key="generate_sample")
+    ip = client_ip(http_request)
+    route, sample_id = router.resolve_for_sample(session_id, ip=ip)
+    try:
+        batch = engine.generate_sample(
+            payload,
+            route=route,
+            sample_id=sample_id,
+            sample_size=_settings.free_sample_size,
+        )
+        claim_status = router.finish_sample(sample_id, usable_count=batch["usable_count"])
+        return SampleGenerateResponse(
+            sample_id=batch["sample_id"],
+            items=batch["items"],
+            validation_report=batch["validation_report"],
+            claim_status=claim_status,
+            usable_count=batch["usable_count"],
+        )
+    except HTTPException:
+        raise
+    except SkillValidationError as exc:
+        router.finish_sample(sample_id, usable_count=0)
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except ValidationError as exc:
+        router.finish_sample(sample_id, usable_count=0)
+        raise HTTPException(status_code=422, detail=exc.errors()) from exc
+    except Exception as exc:  # noqa: BLE001
+        router.finish_sample(sample_id, usable_count=0)
+        raise HTTPException(status_code=500, detail="Internal server error") from exc
+
+
 @app.get("/items", response_model=ItemsListResponse)
 def items(
     http_request: Request,
     run_id: str | None = Query(default=None),
+    sample_id: str | None = Query(default=None),
     subject: str | None = Query(default=None),
     skill: str | None = Query(default=None),
     difficulty: int | None = Query(default=None),
@@ -136,6 +255,7 @@ def items(
     search_q = q.strip() if q and q.strip() else None
     return engine.query_items(
         run_id=run_id,
+        sample_id=sample_id,
         subject=subject,
         skill=skill,
         difficulty=difficulty,

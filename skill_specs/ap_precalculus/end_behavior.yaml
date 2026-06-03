@@ -1,0 +1,80 @@
+skill_id: ap_precalculus.end_behavior
+status: draft
+subject: ap_precalculus
+category: polynomial_rational_functions
+
+metadata:
+  display_name: "End Behavior"
+
+core_reasoning:
+  summary: >
+    Use tables, symbolic forms, or qualitative graphs to infer end behavior,
+    concavity, or polynomial model type without full expansion or long computation.
+  cognitive_actions:
+    - compare
+    - interpret
+    - justify
+  reasoning_steps:
+    - "Examine the given table, equation structure, or sketch for long-run trends."
+    - "Use degree and leading coefficient sign to predict end behavior when symbolic."
+    - "Distinguish local behavior on an interval from global end behavior."
+    - "Select the statement or model consistent with the evidence provided."
+  anti_patterns:
+    - "Full polynomial expansion when structure suffices"
+    - "Confusing decreasing on an interval with end behavior as x approaches infinity"
+
+question_archetypes:
+  - id: end_behavior_from_structure
+    description: "Determine end behavior from polynomial degree and leading term."
+    stem_patterns:
+      - "Which of the following statements is true about the end behavior of f?"
+      - "As x increases without bound, which statement about f(x) is true?"
+    formats: [mcq]
+
+  - id: qualitative_graph_claim
+    description: "Evaluate a claim about a graph from a table or partial information."
+    stem_patterns:
+      - "Which of the following could be true about the graph of f?"
+      - "Based on the table, which conclusion about the graph is supported?"
+    formats: [mcq]
+
+  - id: model_type_from_data
+    description: "Choose the polynomial model type consistent with observed behavior."
+    stem_patterns:
+      - "Because the function is decreasing on the interval shown, which of the following could be true?"
+      - "Which type of function best matches the pattern in the table?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: degree_parity_confusion
+    description: "Swaps even/odd degree end behavior"
+    failure_mode: "Assigns opposite end behavior for even vs odd degree"
+    generation_hints:
+      - "One distractor reverses left and right end behavior"
+
+  - id: concavity_from_decreasing_table
+    description: "Infers concavity from a decreasing table alone"
+    failure_mode: "Claims concave down because values decrease without second differences"
+    generation_hints:
+      - "Include a distractor about concavity based only on monotonicity"
+
+  - id: local_vs_global_behavior
+    description: "Generalizes local interval behavior to end behavior"
+    failure_mode: "Extends behavior on a finite interval to x → ±∞"
+    generation_hints:
+      - "One distractor extrapolates a local trend to global end behavior"
+
+  - id: linear_vs_quadratic_model_confusion
+    description: "Selects the wrong degree model for the data pattern"
+    failure_mode: "Chooses linear when second differences are constant, or vice versa"
+    generation_hints:
+      - "Include a distractor with the wrong polynomial degree"
+
+prompt_constraints:
+  generation_rules:
+    - "Prefer tables, symbolic structure, or qualitative sketches over lengthy algebra"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Items requiring full polynomial expansion to answer"

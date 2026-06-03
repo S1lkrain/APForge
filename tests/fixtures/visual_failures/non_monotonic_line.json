@@ -1,0 +1,25 @@
+{
+  "question": "Based on the graph, which conclusion is best supported?",
+  "choices": ["A. Increases", "B. Decreases", "C. Stable", "D. Unknown"],
+  "answer": "A",
+  "explanation": "The line rises over time supporting A.",
+  "visual": {
+    "type": "chart",
+    "chart_type": "line",
+    "title": "Population Over Time",
+    "x_label": "Time (hr)",
+    "y_label": "Population",
+    "data": [
+      {"x": 10, "y": 100},
+      {"x": 5, "y": 120},
+      {"x": 15, "y": 140}
+    ]
+  },
+  "metadata": {
+    "subject": "ap_biology",
+    "skill": "ap_biology.graph_interpretation",
+    "difficulty": 2,
+    "type": "mcq"
+  },
+  "expected_tags": ["non_monotonic_x"]
+}

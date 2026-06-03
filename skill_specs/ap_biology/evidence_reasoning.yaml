@@ -1,0 +1,75 @@
+skill_id: ap_biology.evidence_reasoning
+status: draft
+subject: ap_biology
+category: evidence_reasoning
+
+metadata:
+  display_name: "Evidence Reasoning"
+
+core_reasoning:
+  summary: >
+    Evaluate whether data support, refute, or are insufficient for a biological
+    claim, using explicit evidence rather than prior knowledge alone.
+  cognitive_actions:
+    - evaluate_claims
+    - match_evidence_to_conclusions
+    - reject_overgeneralization
+    - identify_insufficient_data
+  reasoning_steps:
+    - "Restate the claim in terms of what the data would need to show."
+    - "Compare the observed data pattern to the claim."
+    - "Decide whether evidence supports, refutes, or is insufficient."
+    - "Reject claims that go beyond what was measured."
+  anti_patterns:
+    - "True statements unrelated to the presented evidence"
+    - "Recall-based elimination without data reference"
+
+question_archetypes:
+  - id: supported_claim
+    description: "Choose the conclusion best supported by presented results."
+    stem_patterns:
+      - "Which statement is best supported by the data in Table 1?"
+      - "Based on the results, which claim is most valid?"
+    formats: [mcq]
+
+  - id: insufficient_evidence
+    description: "Recognize when data cannot support a broad conclusion."
+    stem_patterns:
+      - "Which conclusion cannot be made from the data provided?"
+      - "Which statement is not supported by the evidence?"
+    formats: [mcq]
+
+  - id: refuted_claim
+    description: "Identify a claim contradicted by the data."
+    stem_patterns:
+      - "Which hypothesis is most strongly refuted by the results?"
+      - "The data best refute which prediction?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: true_but_unsupported
+    description: "Factually plausible but not supported by the data shown"
+    failure_mode: "Uses background knowledge instead of evidence"
+    generation_hints:
+      - "One distractor is biologically plausible but not supported by the table or figure"
+
+  - id: overgeneralization
+    description: "Extends a local result to an unsupported broad claim"
+    failure_mode: "Extrapolates beyond measured conditions"
+    generation_hints:
+      - "Include a distractor that generalizes beyond the study scope"
+
+  - id: correlation_as_proof
+    description: "Treats association in data as definitive proof"
+    failure_mode: "Confuses correlation with demonstrated mechanism"
+    generation_hints:
+      - "One distractor asserts mechanism from correlation alone"
+
+prompt_constraints:
+  generation_rules:
+    - "Include data reference (Table or Figure) in the stem"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Correct answer must cite the presented evidence pattern"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Questions solvable by recall without the data"

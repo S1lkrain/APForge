@@ -1,0 +1,75 @@
+skill_id: ap_biology.variable_analysis
+status: draft
+subject: ap_biology
+category: experimental_reasoning
+
+metadata:
+  display_name: "Variable Analysis"
+
+core_reasoning:
+  summary: >
+    Identify independent, dependent, and controlled variables in biological
+    investigations and determine what should be manipulated or measured.
+  cognitive_actions:
+    - identify_variables
+    - distinguish_manipulation_from_measurement
+    - evaluate_controls
+    - design_testable_changes
+  reasoning_steps:
+    - "State the hypothesis or question being tested."
+    - "Identify what is deliberately changed (independent variable)."
+    - "Identify what is measured (dependent variable)."
+    - "Recognize variables that must be held constant."
+  anti_patterns:
+    - "Listing vocabulary definitions without a scenario"
+    - "Confusing the subject of study with the measured outcome"
+
+question_archetypes:
+  - id: iv_identification
+    description: "Identify the independent variable in a described experiment."
+    stem_patterns:
+      - "Which variable is intentionally manipulated in the experiment?"
+      - "Which factor represents the independent variable?"
+    formats: [mcq]
+
+  - id: dv_identification
+    description: "Identify the dependent variable being measured."
+    stem_patterns:
+      - "Which variable is being measured in the investigation?"
+      - "Which response is the dependent variable?"
+    formats: [mcq]
+
+  - id: manipulation_design
+    description: "Choose what to change to test a stated hypothesis."
+    stem_patterns:
+      - "Which change would best test the hypothesis that..."
+      - "Which modification would allow the researchers to test whether..."
+    formats: [mcq]
+
+distractor_patterns:
+  - id: iv_dv_reversal
+    description: "Swaps manipulated and measured variables"
+    failure_mode: "Reverses IV and DV roles"
+    generation_hints:
+      - "One distractor labels the measured response as the manipulated variable"
+
+  - id: controlled_as_independent
+    description: "Selects a controlled variable as the IV"
+    failure_mode: "Treats a held-constant factor as the manipulated variable"
+    generation_hints:
+      - "Include a variable that should be controlled, not manipulated"
+
+  - id: outcome_as_manipulation
+    description: "Proposes measuring the outcome instead of changing a factor"
+    failure_mode: "Confuses what to change with what to measure"
+    generation_hints:
+      - "One distractor suggests manipulating the dependent variable"
+
+prompt_constraints:
+  generation_rules:
+    - "Include a brief experimental scenario"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Require identifying variables in context"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Standalone definition questions without an experiment"

@@ -29,8 +29,19 @@ export function useNavigate() {
 }
 
 export function matchPracticePath(path: string): string | null {
-  const match = path.match(/^\/practice\/([^/]+)$/);
-  return match ? match[1] : null;
+  const single = path.match(/^\/practice\/([^/]+)$/);
+  if (single && !single[1].startsWith("sample")) {
+    return single[1];
+  }
+  return null;
+}
+
+export function matchSamplePracticePath(path: string): { sampleId: string; index: number } | null {
+  const match = path.match(/^\/practice\/sample\/([^/]+)\/(\d+)$/);
+  if (!match) {
+    return null;
+  }
+  return { sampleId: match[1], index: Number(match[2]) };
 }
 
 export function isGenerationHistoryPath(path: string): boolean {

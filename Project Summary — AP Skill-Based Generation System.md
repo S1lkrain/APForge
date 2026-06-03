@@ -1,87 +1,78 @@
-# Project Summary — AP Skill-Based Generation System
+# Project Summary — APForge (Constraint-Oriented AP Generation Harness)
 
 ## Overview
 
-I built a **skill-based AI content generation system** for producing **AP-style educational materials** (MCQ / FRQ / answer keys / explanations) through a **modular, callable interface** rather than a chatbot experience. The core goal is to explore how LLMs can be engineered into **reusable “capabilities”** that plug into agents, pipelines, and products—treating content generation as a programmable system, not an interactive conversation.
+APForge is a **constraint-oriented AP generation harness**—the quality-control layer for AI-generated AP content. AI models produce **candidate** questions; APForge applies **SkillSpecs**, **schema contracts**, **deterministic validators**, **LLM evaluators**, and **repair loops** to decide what is acceptable.
+
+It is built as modular infrastructure (callable skills, SkillSpecs, validation pipeline) rather than a chatbot. The harness is agent-ready: generation is programmable, observable, and policy-driven.
+
+**Positioning:** APForge helps models produce structured, answer-consistent, AP-style questions; it does not position itself as “the model that writes your exam.”
 
 ## Problem & Motivation
 
-Most educational LLM demos stop at “ask a question, get an answer,” which makes output hard to control, hard to validate, and difficult to integrate into software systems. I wanted to demonstrate a different direction: **LLM as a structured generator**—where exam content can be produced with **explicit parameters**, consistent schemas, and predictable integration points for future adaptive learning workflows.
+### AI models need constraints, not just prompts
 
-## Key Contributions
+A single prompt cannot reliably enforce schema validity, answer consistency, AP style alignment, or repair policy. Most educational LLM output remains inconsistent, non-structured, and weak on real AP-style reasoning.
 
-### 1) Skill-Centric Architecture (LLM as Callable Capability)
+### Persistent failure modes
 
-I decomposed exam content generation into **independent skills** (e.g., question generation, answer generation, explanation generation). Each skill behaves like a module that can be invoked programmatically:
+- Generated questions often do not feel like AP (generic stems, weak distractors).
+- Structured outputs break (schema drift, malformed JSON).
+- Explanations contradict answers.
+- Single-prompt “AI study apps” do not scale for evaluation or orchestration.
 
-```python
-generate_question(
-  subject="ap_precalculus",
-  skill="limits",
-  difficulty=3,
-  type="mcq"
-)
+APForge addresses these with a **constrained pipeline**: candidate generation → contracts → validators → evaluators → repair → accept/reject + validation report.
+
+## Usage modes (product direction)
+
+| Mode | Summary |
+|------|---------|
+| **APForge Core** | No API key; free 5-question sample; APForge Core Model; basic validation report; limited repair |
+| **BYOK** | User provider key via backend (not frontend); more generations; full reports; more repair |
+| **Future Pro** | Stronger hosted model; batch worksheets; question bank; PDF/Forms export; teacher dashboard; full evaluation history |
+
+## Architecture (harness flow)
+
+```text
+User Request → Mode Selection → Model Router / Provider Adapter
+→ SkillSpec + AP Style Patterns → Candidate Generation
+→ Schema Contracts → Deterministic Validators → LLM Evaluators
+→ Repair Loop → Accepted / Rejected → Validation Report
 ```
 
-This abstraction supports extensibility (new subjects/skills) and composability (pipelines chaining multiple skills).
+## Key contributions
 
-### 2) Structured Output Schema (Agent-Ready + Database-Friendly)
+### 1) SkillSpec- and skill-centric control
 
-All generated content is returned in a consistent, machine-usable schema:
+Generation paths are controlled through **SkillSpecs** and composable skills (question, answer, explanation, evaluation stages), invokable programmatically with explicit parameters (subject, skill, difficulty, type).
 
-```json
-{
-  "question": "...",
-  "choices": ["A", "B", "C", "D"],
-  "answer": "B",
-  "explanation": "...",
-  "metadata": {
-    "subject": "ap_precalculus",
-    "skill": "limits",
-    "difficulty": 3
-  }
-}
-```
+### 2) Structured schema contracts
 
-This design enables:
+Outputs target a consistent, machine-usable schema (question, choices, answer, explanation, metadata) for storage, analytics, and downstream agents.
 
-- storing and indexing outputs in databases
-- analytics and quality evaluation
-- downstream agent orchestration and content pipelines
-- future adaptive learning loops (e.g., difficulty adjustment)
+### 3) Validation, evaluation, and repair
 
-### 3) User-Provided LLM Backend (Scalable + Vendor-Agnostic)
+- **Deterministic validators** for schema and consistency checks.
+- **LLM-based evaluators** where judgment is required.
+- **Repair loops** and harness **enforce / warn / shadow** policies.
+- **Validation reports** for transparency and future dashboard history.
 
-The system does **not** ship its own model backend. Instead, users connect their own **OpenAI-compatible API** and the project functions as a **prompt + logic abstraction layer**. This keeps the architecture flexible, avoids vendor lock-in, and makes the system easier to deploy in different environments.
+### 4) Model Router / Provider Adapter
 
-## Demo / Interface
+Routing to APForge Core, BYOK providers, or (planned) Pro-hosted models behind one adapter—keys for BYOK stay on the backend.
 
-A lightweight dashboard is included as a **demo layer** to visualize the skill system:
+## Demo / interface
 
-- choose subject / skill / difficulty / question type
-- generate questions + answers + explanations
-- inspect structured outputs
+A React practice UI demonstrates consuming harness output: subject/skill selection, generation, structured display. The UI is a consumption layer; the harness and validation pipeline are the core system.
 
-The dashboard is intentionally not the “product”; it demonstrates how the engine can be embedded into other workflows.
+## Philosophy
 
-## Impact & Value
+- Models generate candidates; APForge applies constraints.
+- Only validated outputs are accepted.
+- APForge does not try to replace AI models—it wraps them with infrastructure suitable for open-source extension and honest limits of prompt-only generation.
 
-This project demonstrates a shift from:
+## Compliance / ethics
 
-- “LLM answers questions”
-
-to:
-
-- “LLM generates structured learning experiences”
-
-It establishes a foundation for:
-
-- automated content generation pipelines
-- agent-compatible curriculum tooling
-- adaptive learning systems (parameterized generation + evaluation + iteration)
-
-## Compliance / Ethics
-
-- All content is **AI-generated and original**
-- No official AP questions/rubrics are used
+- Content is **AI-generated and original**
+- No official AP questions or rubrics are used
 - Not affiliated with College Board

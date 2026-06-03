@@ -3,6 +3,7 @@ import { CheckCircle2, RotateCcw, XCircle } from "lucide-react";
 import type { ItemRow } from "../../api/types";
 import { choiceLetter, isMcqCorrect, type McqLetter } from "../../lib/answer";
 import { MathContent } from "./MathContent";
+import { VisualRenderer } from "./VisualRenderer";
 
 interface PracticeSessionProps {
   item: ItemRow;
@@ -28,6 +29,8 @@ export function PracticeSession({ item }: PracticeSessionProps) {
         <p className="text-base leading-relaxed text-slate-800">
           <MathContent>{item.question}</MathContent>
         </p>
+
+        <VisualRenderer visual={item.visual} />
 
         <ul className="mt-6 space-y-3">
           {item.choices.map((choice, index) => {

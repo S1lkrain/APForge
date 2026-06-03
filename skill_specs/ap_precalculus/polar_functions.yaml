@@ -1,0 +1,80 @@
+skill_id: ap_precalculus.polar_functions
+status: draft
+subject: ap_precalculus
+category: trigonometric_polar_functions
+
+metadata:
+  display_name: "Polar Functions"
+
+core_reasoning:
+  summary: >
+    Work with polar coordinates, quadrant location, arc length on the unit
+    circle, and intervals on polar graphs.
+  cognitive_actions:
+    - convert
+    - interpret
+    - identify
+  reasoning_steps:
+    - "Convert between polar and rectangular forms when needed."
+    - "Use angle and radius sign to determine quadrant or location."
+    - "Interpret polar graphs to identify intervals, loops, or distance from origin."
+    - "Apply unit circle reasoning for arc length and angular measure."
+  anti_patterns:
+    - "Ignoring negative radius reflection rules"
+    - "Using rectangular quadrant rules without adjusting for polar angle"
+
+question_archetypes:
+  - id: polar_location
+    description: "Determine quadrant or location of a point in polar coordinates."
+    stem_patterns:
+      - "In polar coordinates, which of the following describes the location of the point?"
+      - "Which statement about the point $(r, \\theta)$ is true?"
+    formats: [mcq]
+
+  - id: polar_rectangular_conversion
+    description: "Convert between polar and rectangular representations."
+    stem_patterns:
+      - "Which of the following are the values for $a$ and $b$ in rectangular form?"
+      - "Which polar coordinates represent the same point as $(x, y)$?"
+    formats: [mcq]
+
+  - id: polar_graph_interpretation
+    description: "Interpret features of a polar graph or distance from origin."
+    stem_patterns:
+      - "Which interval of $\\theta$ describes the portion of the graph shown?"
+      - "What is the distance between the point and the origin?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: quadrant_angle_reasoning_error
+    description: "Places the point in the wrong quadrant"
+    failure_mode: "Uses angle alone without considering sign of r"
+    generation_hints:
+      - "One distractor assigns the wrong quadrant for negative r"
+
+  - id: negative_radius_reflection
+    description: "Fails to reflect angle when r is negative"
+    failure_mode: "Treats $(-r, \\theta)$ as equivalent to $(r, \\theta)$"
+    generation_hints:
+      - "Include a distractor ignoring the $\\pi$ rotation for negative radius"
+
+  - id: polar_rectangular_conversion_slip
+    description: "Makes a sign or component error in conversion"
+    failure_mode: "Uses $x = r\\sin\\theta$ instead of $r\\cos\\theta$ or wrong sign"
+    generation_hints:
+      - "One distractor swaps sin and cos in conversion"
+
+  - id: wrong_polar_interval_from_graph
+    description: "Selects the wrong theta interval for a polar graph segment"
+    failure_mode: "Misreads start and end angles on a polar plot"
+    generation_hints:
+      - "Include a distractor with an interval shifted by $\\pi$ or $\\frac{\\pi}{2}$"
+
+prompt_constraints:
+  generation_rules:
+    - "Use polar notation consistently; state when multiple representations are equivalent"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Ambiguous points without specifying principal angle or equivalent form"

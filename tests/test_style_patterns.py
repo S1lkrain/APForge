@@ -49,7 +49,7 @@ def test_build_style_prompt_includes_wording_and_distractors():
     assert "degree parity confusion" in prompt
 
 
-def test_question_skill_appends_style_prompt_for_matching_skill():
+def test_question_skill_uses_compiled_prompt_when_skill_spec_exists():
     captured_prompts = []
 
     class CapturingProvider:
@@ -72,8 +72,9 @@ def test_question_skill_appends_style_prompt_for_matching_skill():
     )
     skill.run(req)
     assert len(captured_prompts) == 1
-    assert "AP-style MCQ guidance" in captured_prompts[0]
-    assert "amplitude period confusion" in captured_prompts[0]
+    assert "ap_precalculus.sinusoidal_functions" in captured_prompts[0]
+    assert "Reasoning steps the item must require" in captured_prompts[0]
+    assert "AP-style MCQ guidance" not in captured_prompts[0]
 
 
 def test_question_skill_continues_without_pattern():

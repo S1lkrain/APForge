@@ -1,0 +1,106 @@
+skill_id: ap_precalculus.exponential_growth
+status: draft
+subject: ap_precalculus
+category: exponential_logarithmic_functions
+
+metadata:
+  display_name: "Exponential Growth & Decay"
+
+core_reasoning:
+  summary: >
+    Interpret exponential growth and decay in realistic contexts and graphs;
+    identify initial value, growth factor, concavity, and equivalent forms after
+    translations.
+  cognitive_actions:
+    - interpret
+    - compare
+    - transform
+    - compute
+  reasoning_steps:
+    - "Identify whether the model represents growth or decay from context or base."
+    - "Determine initial value and growth/decay factor from the given form."
+    - "Use concavity and monotonicity to distinguish exponential from linear behavior."
+    - "Recognize equivalent forms after horizontal or vertical translations."
+  anti_patterns:
+    - "Treating exponential change as constant additive change"
+    - "Confusing growth factor with growth rate percentage without conversion"
+
+question_archetypes:
+  - id: context_model_selection
+    description: "Choose the exponential model that fits a described scenario."
+    stem_patterns:
+      - "Which of the following models the situation described?"
+      - "Based on this information, which exponential function best represents the data?"
+    formats: [mcq]
+
+  - id: exponential_property_evaluation
+    description: "Evaluate a true statement about an exponential function or graph."
+    stem_patterns:
+      - "Which of the following statements is true about the exponential function f?"
+      - "Which statement about the graph of f is true?"
+    formats: [mcq]
+
+  - id: equivalent_form_after_translation
+    description: "Identify an equivalent exponential form after a translation."
+    stem_patterns:
+      - "Which of the following is an equivalent form of f after the translation described?"
+      - "Which equation represents the same function after shifting the graph?"
+    formats: [mcq]
+
+  - id: numeric_growth_calculation
+    description: "Compute a numeric result from an exponential or interest growth scenario."
+    stem_patterns:
+      - "A quantity grows according to the scenario described. What is the value after the given time period?"
+      - "An account earns interest as described. What is the balance after the given number of years?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: growth_factor_vs_rate_confusion
+    description: "Confuses multiplicative factor with additive rate"
+    failure_mode: "Uses a constant difference instead of a constant ratio"
+    generation_hints:
+      - "One distractor adds a fixed amount each period instead of multiplying"
+
+  - id: initial_value_shift
+    description: "Misidentifies initial value after a vertical shift"
+    failure_mode: "Uses the y-intercept after translation as the initial value in context"
+    generation_hints:
+      - "Include a distractor with the wrong starting value after a shift"
+
+  - id: linear_vs_exponential_mixup
+    description: "Selects a linear model for exponential data"
+    failure_mode: "Chooses linear because values increase, ignoring constant ratio"
+    generation_hints:
+      - "One distractor is a linear function with similar values at one point"
+
+  - id: concavity_sign_error
+    description: "States the wrong concavity for growth or decay"
+    failure_mode: "Claims concave down for exponential growth"
+    generation_hints:
+      - "Include a distractor reversing concavity direction"
+
+  - id: horizontal_vs_vertical_translation_error
+    description: "Applies a horizontal shift as vertical or vice versa"
+    failure_mode: "Changes the wrong parameter when translating the graph"
+    generation_hints:
+      - "One distractor shifts the graph in the wrong direction or axis"
+
+computation:
+  enabled: true
+  allowed_methods:
+    - compound_interest
+    - exponential_growth
+    - simple_interest
+  required_distractor_models:
+    - simple_interest_instead_of_compound
+    - sign_error
+    - early_rounding
+
+prompt_constraints:
+  generation_rules:
+    - "Use realistic contexts or graphs when possible"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Unrealistic growth rates or negative populations without context"

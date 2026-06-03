@@ -1,0 +1,75 @@
+skill_id: ap_biology.experimental_interpretation
+status: draft
+subject: ap_biology
+category: experimental_reasoning
+
+metadata:
+  display_name: "Experimental Interpretation"
+
+core_reasoning:
+  summary: >
+    Interpret experimental setups and results to evaluate claims,
+    distinguish correlation from causation, and identify valid controls.
+  cognitive_actions:
+    - identify_variables
+    - evaluate_controls
+    - interpret_data_trends
+    - assess_claim_validity
+  reasoning_steps:
+    - "Identify the independent and dependent variables."
+    - "Determine whether a valid control group exists."
+    - "Read data trends without over-interpreting single points."
+    - "Evaluate whether evidence supports, refutes, or is insufficient for the claim."
+  anti_patterns:
+    - "Pure biology recall without experimental context"
+    - "Unit/chapter trivia"
+
+question_archetypes:
+  - id: control_identification
+    description: "Identify control group or purpose of a control design."
+    stem_patterns:
+      - "Which group serves as the control in the experiment?"
+      - "Which modification would best serve as a control?"
+    formats: [mcq]
+
+  - id: evidence_claim_evaluation
+    description: "Select the claim best supported by presented data."
+    stem_patterns:
+      - "Which conclusion is best supported by the data in Figure 1?"
+      - "Based on the results, which statement is most valid?"
+    formats: [mcq]
+
+  - id: confounding_detection
+    description: "Identify a design flaw or uncontrolled variable."
+    stem_patterns:
+      - "Which factor most likely confounds the interpretation?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: correlation_causation_swap
+    description: "Treats correlation as proof of causation"
+    failure_mode: "Conflates association with causal mechanism"
+    generation_hints:
+      - "Include a distractor asserting an unsupported causal claim"
+
+  - id: wrong_variable_assignment
+    description: "Swaps IV and DV"
+    failure_mode: "Misidentifies measured vs manipulated variable"
+    generation_hints:
+      - "One distractor reverses IV/DV roles"
+
+  - id: factual_red_herring
+    description: "True biology fact irrelevant to the experiment"
+    failure_mode: "Recall masquerading as reasoning"
+    generation_hints:
+      - "One distractor is factually true but ignores the data"
+
+prompt_constraints:
+  generation_rules:
+    - "Include a brief experimental scenario with identifiable variables"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "At least two distractors should reflect documented distractor_patterns"
+    - "Require reading the experiment to answer—not pure recall"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Questions answerable without the experimental setup"

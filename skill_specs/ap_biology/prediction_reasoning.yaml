@@ -1,0 +1,75 @@
+skill_id: ap_biology.prediction_reasoning
+status: draft
+subject: ap_biology
+category: predictive_reasoning
+
+metadata:
+  display_name: "Prediction Reasoning"
+
+core_reasoning:
+  summary: >
+    Use hypotheses and biological models to predict outcomes of changes,
+    disruptions, or new experimental conditions.
+  cognitive_actions:
+    - apply_models
+    - predict_outcomes
+    - reason_counterfactually
+    - connect_cause_to_effect
+  reasoning_steps:
+    - "Identify the model, mechanism, or hypothesis provided."
+    - "Determine what change is being proposed."
+    - "Predict the direction or nature of the outcome."
+    - "Select the prediction consistent with the stated mechanism."
+  anti_patterns:
+    - "Random outcome guessing without mechanism"
+    - "Memorized fact lookup unrelated to the scenario"
+
+question_archetypes:
+  - id: if_then_prediction
+    description: "Predict the outcome if a variable is changed."
+    stem_patterns:
+      - "If the enzyme were denatured, which outcome would be most likely?"
+      - "Which result would be expected if the inhibitor were added?"
+    formats: [mcq]
+
+  - id: disruption_prediction
+    description: "Predict effect of removing or blocking a component."
+    stem_patterns:
+      - "Which change would most likely occur if the gene were knocked out?"
+      - "What would be the expected effect of blocking the receptor?"
+    formats: [mcq]
+
+  - id: hypothesis_prediction
+    description: "Select the outcome predicted by a stated hypothesis."
+    stem_patterns:
+      - "According to the hypothesis, which result should be observed?"
+      - "Which observation would best support the researchers' prediction?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: reversed_prediction
+    description: "Predicts the opposite direction of effect"
+    failure_mode: "Inverts cause-effect relationship"
+    generation_hints:
+      - "One distractor predicts the opposite trend from the mechanism"
+
+  - id: unrelated_outcome
+    description: "Plausible biology outcome not linked to the change"
+    failure_mode: "Ignores the proposed manipulation"
+    generation_hints:
+      - "Include an outcome unrelated to the stated change"
+
+  - id: mechanism_confusion
+    description: "Applies the wrong pathway or process"
+    failure_mode: "Uses an incorrect biological model"
+    generation_hints:
+      - "One distractor invokes an unrelated biological process"
+
+prompt_constraints:
+  generation_rules:
+    - "State the mechanism, hypothesis, or proposed change explicitly"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Require reasoning from the scenario, not isolated recall"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Predictions with no stated biological context"

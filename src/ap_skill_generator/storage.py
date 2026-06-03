@@ -40,6 +40,7 @@ class RunRecord(Base):
     final_status: Mapped[str] = mapped_column(String(32), default="accepted")
     failure_reason_code: Mapped[str] = mapped_column(String(64), default="NONE")
     attempt_count_by_skill: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    sample_id: Mapped[Optional[str]] = mapped_column(String(36), nullable=True, index=True)
 
 
 class ItemRecord(Base):
@@ -52,6 +53,7 @@ class ItemRecord(Base):
     answer: Mapped[str] = mapped_column(Text)
     explanation: Mapped[str] = mapped_column(Text)
     item_metadata: Mapped[dict[str, Any]] = mapped_column("metadata", JSON)
+    visual: Mapped[Optional[dict[str, Any]]] = mapped_column(JSON, nullable=True)
     reviewer_rating: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     reviewer_reason: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
@@ -139,6 +141,7 @@ def row_to_item_dict(item: ItemRecord, run: RunRecord, eval_row: EvalRecord | No
         "answer": item.answer,
         "explanation": item.explanation,
         "metadata": item.item_metadata,
+        "visual": item.visual,
     }
 
 
@@ -204,9 +207,13 @@ class Storage:
             "final_status": "TEXT DEFAULT 'accepted'",
             "failure_reason_code": "TEXT DEFAULT 'NONE'",
             "attempt_count_by_skill": "JSON DEFAULT '{}'",
+            "sample_id": "TEXT",
         }
         eval_columns = {
             "judge_scores": "JSON DEFAULT '{}'",
+        }
+        items_columns = {
+            "visual": "JSON",
         }
 
         with self.engine.begin() as conn:
@@ -226,6 +233,14 @@ class Storage:
                 if col not in existing_eval:
                     conn.exec_driver_sql(f"ALTER TABLE eval_results ADD COLUMN {col} {ddl}")
 
+            existing_items = {
+                row[1]
+                for row in conn.exec_driver_sql("PRAGMA table_info(items)").fetchall()
+            }
+            for col, ddl in items_columns.items():
+                if col not in existing_items:
+                    conn.exec_driver_sql(f"ALTER TABLE items ADD COLUMN {col} {ddl}")
+
     def save_generation(
         self,
         *,
@@ -243,6 +258,7 @@ class Storage:
         failure_reason_code: str,
         attempt_count_by_skill: dict[str, int],
         token_usage: dict[str, Any] | None = None,
+        sample_id: str | None = None,
     ) -> str:
         run_id = str(uuid.uuid4())
         item_id = str(uuid.uuid4())
@@ -268,6 +284,7 @@ class Storage:
                     final_status=final_status,
                     failure_reason_code=failure_reason_code,
                     attempt_count_by_skill=attempt_count_by_skill,
+                    sample_id=sample_id,
                 )
             )
             session.add(
@@ -279,6 +296,7 @@ class Storage:
                     answer=item.answer,
                     explanation=item.explanation,
                     item_metadata=item.metadata.model_dump(),
+                    visual=item.visual.model_dump() if item.visual is not None else None,
                 )
             )
             session.commit()
@@ -289,6 +307,7 @@ class Storage:
         session: Session,
         *,
         run_id: str | None = None,
+        sample_id: str | None = None,
         subject: str | None = None,
         skill: str | None = None,
         difficulty: int | None = None,
@@ -303,6 +322,8 @@ class Storage:
         )
         if run_id:
             query = query.filter(RunRecord.id == run_id)
+        if sample_id:
+            query = query.filter(RunRecord.sample_id == sample_id)
         if subject:
             query = query.filter(RunRecord.subject == subject)
         if skill:
@@ -333,6 +354,7 @@ class Storage:
         self,
         *,
         run_id: str | None = None,
+        sample_id: str | None = None,
         subject: str | None = None,
         skill: str | None = None,
         difficulty: int | None = None,
@@ -364,6 +386,7 @@ class Storage:
             query = self._build_items_query(
                 session,
                 run_id=run_id,
+                sample_id=sample_id,
                 subject=subject,
                 skill=skill,
                 difficulty=difficulty,

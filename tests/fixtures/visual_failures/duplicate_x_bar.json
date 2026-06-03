@@ -1,0 +1,24 @@
+{
+  "question": "Based on the graph, which treatment shows the greatest growth?",
+  "choices": ["A. Control", "B. Treatment A", "C. Treatment B", "D. Treatment C"],
+  "answer": "B",
+  "explanation": "Treatment A has the tallest bar in the figure.",
+  "visual": {
+    "type": "chart",
+    "chart_type": "bar",
+    "title": "Growth by Treatment",
+    "x_label": "Treatment",
+    "y_label": "Growth",
+    "data": [
+      {"x": "Control", "y": 1.0},
+      {"x": "Control", "y": 2.0}
+    ]
+  },
+  "metadata": {
+    "subject": "ap_biology",
+    "skill": "ap_biology.graph_interpretation",
+    "difficulty": 2,
+    "type": "mcq"
+  },
+  "expected_tags": ["duplicate_categories"]
+}

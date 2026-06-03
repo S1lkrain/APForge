@@ -1,0 +1,21 @@
+{
+  "question": "Based on the graph, which conclusion is best supported by the data?",
+  "choices": ["A. Rate increases", "B. Rate decreases", "C. No change", "D. Cannot determine"],
+  "answer": "A",
+  "explanation": "The graph shows an upward trend supporting answer A.",
+  "visual": {
+    "type": "chart",
+    "chart_type": "line",
+    "title": "Activity vs Time",
+    "x_label": "Time (min)",
+    "y_label": "Activity",
+    "data": [{"x": 0, "y": 1}]
+  },
+  "metadata": {
+    "subject": "ap_biology",
+    "skill": "ap_biology.graph_interpretation",
+    "difficulty": 2,
+    "type": "mcq"
+  },
+  "expected_tags": ["chart_data_too_sparse"]
+}

@@ -1,0 +1,24 @@
+{
+  "question": "Based on the scatter plot, which relationship is shown?",
+  "choices": ["A. Positive", "B. Negative", "C. None", "D. Random"],
+  "answer": "A",
+  "explanation": "All points share the same coordinates.",
+  "visual": {
+    "type": "chart",
+    "chart_type": "scatter",
+    "title": "Collapsed Points",
+    "x_label": "X",
+    "y_label": "Y",
+    "data": [
+      {"x": 5, "y": 10},
+      {"x": 5, "y": 10}
+    ]
+  },
+  "metadata": {
+    "subject": "ap_biology",
+    "skill": "ap_biology.graph_interpretation",
+    "difficulty": 2,
+    "type": "mcq"
+  },
+  "expected_tags": ["insufficient_variance"]
+}

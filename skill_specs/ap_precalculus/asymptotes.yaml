@@ -1,0 +1,80 @@
+skill_id: ap_precalculus.asymptotes
+status: draft
+subject: ap_precalculus
+category: polynomial_rational_functions
+
+metadata:
+  display_name: "Asymptotes"
+
+core_reasoning:
+  summary: >
+    Identify holes, vertical asymptotes, and horizontal asymptotes using
+    function structure and multiplicity—not long algebraic simplification.
+  cognitive_actions:
+    - identify
+    - interpret
+    - justify
+  reasoning_steps:
+    - "Factor numerator and denominator to locate common factors and zeros."
+    - "Determine whether a zero in the denominator creates a hole or vertical asymptote."
+    - "Compare degrees of numerator and denominator for horizontal asymptote behavior."
+    - "Evaluate limiting behavior near discontinuities using structure, not full simplification."
+  anti_patterns:
+    - "Long rational simplification when factoring reveals structure immediately"
+    - "Confusing x-intercepts with holes"
+
+question_archetypes:
+  - id: rational_form_selection
+    description: "Choose a rational function consistent with described asymptote or hole behavior."
+    stem_patterns:
+      - "Which of the following could define a function with the described behavior?"
+      - "Which rational function has a hole at x = a and a vertical asymptote at x = b?"
+    formats: [mcq]
+
+  - id: hole_vs_asymptote
+    description: "Distinguish removable discontinuities from vertical asymptotes."
+    stem_patterns:
+      - "Which of the following is true about holes in the graph of f?"
+      - "For input values sufficiently close to x = a, which statement is true?"
+    formats: [mcq]
+
+  - id: limiting_conclusion
+    description: "Select a valid conclusion about limits near a discontinuity."
+    stem_patterns:
+      - "Which of the following conclusions is possible based on the graph?"
+      - "Which statement about the limit of f(x) as x approaches a is true?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: hole_vs_vertical_asymptote
+    description: "Treats a hole as a vertical asymptote or vice versa"
+    failure_mode: "Fails to check whether a common factor cancels"
+    generation_hints:
+      - "One distractor claims a vertical asymptote where a hole exists"
+
+  - id: multiplicity_hole_argument_error
+    description: "Misapplies multiplicity rules for holes"
+    failure_mode: "Assumes any shared linear factor always produces a hole"
+    generation_hints:
+      - "Include a distractor ignoring multiplicity requirements for a hole"
+
+  - id: horizontal_asymptote_degree_error
+    description: "Uses wrong degree comparison for horizontal asymptote"
+    failure_mode: "States y = 0 or y = ratio of leading coefficients incorrectly"
+    generation_hints:
+      - "One distractor applies the wrong horizontal asymptote rule"
+
+  - id: x_intercept_vs_hole_confusion
+    description: "Confuses an x-intercept with a hole"
+    failure_mode: "Identifies a zero of the simplified function as a hole incorrectly"
+    generation_hints:
+      - "Include a distractor labeling an x-intercept as a hole"
+
+prompt_constraints:
+  generation_rules:
+    - "Emphasize structure and factoring over lengthy simplification"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Items solvable only by extensive algebraic manipulation"

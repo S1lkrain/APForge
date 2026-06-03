@@ -1,0 +1,83 @@
+skill_id: ap_biology.graph_interpretation
+status: draft
+subject: ap_biology
+category: graphical_reasoning
+
+metadata:
+  display_name: "Graph Interpretation"
+
+core_reasoning:
+  summary: >
+    Read biological graphs and figures to interpret trends, compare groups,
+    and draw evidence-based conclusions from axes, scales, and error bars.
+  cognitive_actions:
+    - read_axes_and_scales
+    - compare_trends
+    - interpret_error_bars
+    - infer_biological_meaning
+  reasoning_steps:
+    - "Identify what each axis represents and the units involved."
+    - "Describe the overall trend or comparison shown in the figure."
+    - "Use error bars or sample size cues to judge certainty."
+    - "Connect the graphical pattern to a biologically plausible claim."
+  anti_patterns:
+    - "Naming graph types without interpreting data"
+    - "Reading values without comparing trends"
+
+question_archetypes:
+  - id: trend_interpretation
+    description: "Select the statement best supported by a graph trend."
+    stem_patterns:
+      - "Which conclusion is best supported by the data in Figure 1?"
+      - "Based on the graph, which statement is most accurate?"
+    formats: [mcq]
+
+  - id: axis_identification
+    description: "Identify what a variable or axis represents."
+    stem_patterns:
+      - "Which label best describes the dependent variable in the graph?"
+      - "What does the y-axis most likely represent?"
+    formats: [mcq]
+
+  - id: comparison_from_graph
+    description: "Compare treatments or time points using graphical data."
+    stem_patterns:
+      - "At which time point is the difference between groups greatest?"
+      - "Which treatment shows the greatest increase over the interval?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: axis_swap
+    description: "Misreads which variable is on each axis"
+    failure_mode: "Confuses independent and dependent variables on the graph"
+    generation_hints:
+      - "Include a distractor that swaps axis meanings"
+
+  - id: trend_overread
+    description: "Claims a trend beyond the data range"
+    failure_mode: "Extrapolates outside measured conditions"
+    generation_hints:
+      - "One distractor extrapolates beyond the x-axis range shown"
+
+  - id: error_bar_ignore
+    description: "Treats overlapping error bars as a significant difference"
+    failure_mode: "Ignores uncertainty in the data"
+    generation_hints:
+      - "Include a distractor claiming significance where error bars overlap"
+
+prompt_constraints:
+  generation_rules:
+    - "Reference a Figure or graph in the question stem"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Correct answer requires reading the graph, not recall"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Questions answerable without the figure description"
+
+visual:
+  enabled: true
+  required: true
+  allowed_chart_types:
+    - line
+    - bar
+    - scatter

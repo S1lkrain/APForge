@@ -1,0 +1,82 @@
+skill_id: ap_precalculus.rates_of_change
+status: draft
+subject: ap_precalculus
+category: polynomial_rational_functions
+
+metadata:
+  display_name: "Rates of Change"
+
+core_reasoning:
+  summary: >
+    Compare average or instantaneous rates of change from graphs, tables, or
+    contexts; distinguish function values from rates and identify intervals
+    where change is increasing or decreasing.
+  cognitive_actions:
+    - compare
+    - interpret
+    - distinguish_value_from_rate
+  reasoning_steps:
+    - "Identify whether the item asks for a value, an average rate, or an instantaneous rate."
+    - "Use the given representation (graph, table, or context) to locate the relevant interval or point."
+    - "Compare rates across intervals or contexts without confusing slope with function value."
+    - "Select the statement or value best supported by the representation."
+  anti_patterns:
+    - "Reading a function value when the question asks for rate of change"
+    - "Pure derivative rules without a graph, table, or context"
+
+question_archetypes:
+  - id: least_rate_on_graph
+    description: "Identify where the rate of change is least on a graph or interval."
+    stem_patterns:
+      - "At which value of x is the rate of change of f the least?"
+      - "On which interval is the rate of change decreasing?"
+    formats: [mcq]
+
+  - id: average_rate_interval
+    description: "Compute or compare average rate of change over a closed interval."
+    stem_patterns:
+      - "What is the average rate of change of f over the closed interval [a, b]?"
+      - "Which interval has the greatest average rate of change?"
+    formats: [mcq]
+
+  - id: context_rate_matching
+    description: "Match a contextual scenario to an appropriate rate-of-change graph."
+    stem_patterns:
+      - "Which container would the graph of the height of the water be most appropriate for?"
+      - "Which graph best represents the rate at which water is added?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: value_vs_rate_confusion
+    description: "Reports a function value instead of a rate"
+    failure_mode: "Confuses f(x) or y-value with slope or rate of change"
+    generation_hints:
+      - "Include a distractor that gives a coordinate value rather than a rate"
+
+  - id: wrong_interval_for_extrema
+    description: "Selects the wrong interval for minimum or maximum rate"
+    failure_mode: "Misreads where slope is steepest or flattest on the graph"
+    generation_hints:
+      - "One distractor picks an interval adjacent to the correct one"
+
+  - id: concavity_vs_monotonicity
+    description: "Confuses concavity with whether rate is increasing"
+    failure_mode: "Treats concave down as decreasing rate without checking slope sign"
+    generation_hints:
+      - "Include a distractor based on concavity alone"
+
+  - id: constant_rate_context_mismatch
+    description: "Assumes constant rate in a non-linear context"
+    failure_mode: "Applies linear reasoning to a non-constant rate scenario"
+    generation_hints:
+      - "One distractor assumes the rate never changes"
+
+prompt_constraints:
+  generation_rules:
+    - "Use a graph, table, or real-world context as the primary representation"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+    - "Require interpreting rate of change, not recall of a formula alone"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Questions answerable without the given representation"

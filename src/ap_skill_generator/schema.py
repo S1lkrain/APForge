@@ -5,6 +5,9 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, model_validator
 
+from .computation.schemas import CalculationSpec, DistractorMetadata
+from .visuals.schemas import BarChartSpec, LineChartSpec, ScatterChartSpec
+
 
 SCHEMA_VERSION = "1.0.0"
 
@@ -16,6 +19,7 @@ class QuestionType(str, Enum):
 
 class Subject(str, Enum):
     AP_PRECALCULUS = "ap_precalculus"
+    AP_BIOLOGY = "ap_biology"
 
 
 class Metadata(BaseModel):
@@ -39,6 +43,13 @@ class GeneratedItem(BaseModel):
     answer: str = Field(min_length=1)
     explanation: str = Field(min_length=10)
     metadata: Metadata
+    calculation_required: bool = False
+    calculation_spec: CalculationSpec | None = None
+    verified: bool | None = None
+    verification_notes: str | None = None
+    distractor_metadata: list[DistractorMetadata] = Field(default_factory=list)
+    verified_answer: float | None = None
+    visual: LineChartSpec | ScatterChartSpec | BarChartSpec | None = None
 
     @model_validator(mode="after")
     def validate_mcq_choices(self) -> "GeneratedItem":

@@ -1,0 +1,79 @@
+skill_id: ap_precalculus.sinusoidal_functions
+status: draft
+subject: ap_precalculus
+category: trigonometric_polar_functions
+
+metadata:
+  display_name: "Sinusoidal Functions"
+
+core_reasoning:
+  summary: >
+    Interpret amplitude, period, and midline from graphs or equations; solve
+    trigonometric equations for all solutions on a bounded interval.
+  cognitive_actions:
+    - interpret
+    - identify
+  reasoning_steps:
+    - "Identify amplitude, period, midline, and phase shift from graph or equation."
+    - "Match a symbolic form to its graph or contextual description."
+    - "When solving, find all solutions within the stated interval, not just one."
+    - "Use unit circle or periodicity reasoning to locate additional solutions."
+  anti_patterns:
+    - "Reporting only the principal solution on a bounded interval"
+    - "Confusing amplitude with vertical shift or period with frequency"
+
+question_archetypes:
+  - id: graph_matching
+    description: "Match a sinusoidal equation to its graph or vice versa."
+    stem_patterns:
+      - "Which of the following is the graph of $f(x) = ...$?"
+      - "Which equation represents the graph shown?"
+    formats: [mcq]
+
+  - id: trig_equation_all_solutions
+    description: "Find all solutions to a trig equation on a bounded interval."
+    stem_patterns:
+      - "What are all values of $\\theta$ in $[0, 2\\pi)$ that satisfy the equation?"
+      - "For $0 \\leq \\theta < 2\\pi$, where is $\\sin(\\theta) = ...$?"
+    formats: [mcq]
+
+  - id: parameter_identification
+    description: "Identify amplitude, period, or midline from a given form."
+    stem_patterns:
+      - "What is the period of the function $f(\\theta) = ...$?"
+      - "Which value represents the amplitude of the function?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: amplitude_period_confusion
+    description: "Swaps amplitude and period values"
+    failure_mode: "Uses period coefficient where amplitude belongs"
+    generation_hints:
+      - "One distractor interchanges amplitude and $\\frac{2\\pi}{b}$"
+
+  - id: vertical_shift_confusion
+    description: "Misidentifies midline or vertical shift"
+    failure_mode: "Treats the midline as amplitude or ignores the vertical shift"
+    generation_hints:
+      - "Include a distractor that omits or doubles the vertical shift"
+
+  - id: wrong_interval_solutions
+    description: "Misses solutions within the stated interval"
+    failure_mode: "Gives only one solution when multiple exist in the interval"
+    generation_hints:
+      - "One distractor lists a subset of correct solutions"
+
+  - id: phase_shift_direction_error
+    description: "Applies phase shift in the wrong direction"
+    failure_mode: "Shifts left when the form indicates a shift right"
+    generation_hints:
+      - "Include a distractor with reversed phase shift"
+
+prompt_constraints:
+  generation_rules:
+    - "State intervals explicitly when solving trigonometric equations"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Degree/radian mix-ups without clear unit labeling"

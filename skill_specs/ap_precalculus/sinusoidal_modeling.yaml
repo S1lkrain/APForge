@@ -1,0 +1,79 @@
+skill_id: ap_precalculus.sinusoidal_modeling
+status: draft
+subject: ap_precalculus
+category: trigonometric_polar_functions
+
+metadata:
+  display_name: "Sinusoidal Modeling"
+
+core_reasoning:
+  summary: >
+    Adjust a sinusoidal model when context reveals systematic over- or
+    under-estimation; keep units and scaling explicit throughout.
+  cognitive_actions:
+    - interpret
+    - revise_model
+  reasoning_steps:
+    - "Read the context to identify what quantity is modeled and its units."
+    - "Compare model predictions to described measurements or errors."
+    - "Determine whether a vertical shift, amplitude change, or both is needed."
+    - "Select the revised function that best fits the contextual evidence."
+  anti_patterns:
+    - "Changing period when the error pattern indicates a vertical or amplitude fix"
+    - "Ignoring units or scale when comparing model to data"
+
+question_archetypes:
+  - id: model_revision_from_error
+    description: "Choose a better sinusoidal model given systematic prediction error."
+    stem_patterns:
+      - "Based on this information, which of the following functions is a better model?"
+      - "The model underestimates by 3 units at the maximum. Which function corrects this?"
+    formats: [mcq]
+
+  - id: contextual_sinusoidal_setup
+    description: "Interpret a sinusoidal model described in a real-world context."
+    stem_patterns:
+      - "A quantity is modeled by the function $f(t) = ...$ where $t$ is measured in hours."
+      - "Which statement about the model is true based on the context?"
+    formats: [mcq]
+
+  - id: parameter_adjustment
+    description: "Identify which parameter change addresses the described mismatch."
+    stem_patterns:
+      - "Which change to the model would account for the described overestimate?"
+      - "Which modification aligns the model with the measured maximum?"
+    formats: [mcq]
+
+distractor_patterns:
+  - id: vertical_shift_only_fix
+    description: "Applies only a vertical shift when amplitude must change"
+    failure_mode: "Shifts the graph when the error magnitude varies periodically"
+    generation_hints:
+      - "One distractor adds a constant when amplitude scaling is required"
+
+  - id: wrong_amplitude_scaling
+    description: "Scales amplitude incorrectly from context"
+    failure_mode: "Doubles or halves amplitude without matching described error"
+    generation_hints:
+      - "Include a distractor with amplitude off by a factor of 2"
+
+  - id: period_change_instead_of_shift
+    description: "Changes period when the model error is not periodic timing"
+    failure_mode: "Alters frequency when the issue is vertical or amplitude mismatch"
+    generation_hints:
+      - "One distractor modifies $b$ in $a\\sin(bx)$ unnecessarily"
+
+  - id: unit_conversion_error
+    description: "Ignores or misapplies unit conversion in the model"
+    failure_mode: "Mixes hours and minutes or wrong scale in the argument"
+    generation_hints:
+      - "Include a distractor with incorrect time scaling in the input"
+
+prompt_constraints:
+  generation_rules:
+    - "Include explicit units and a brief real-world context"
+    - "Exactly 4 MCQ choices labeled A–D"
+    - "Use LaTeX inside $...$ for mathematical notation"
+  forbidden_content:
+    - "Verbatim AP exam items"
+    - "Context-free symbolic items without modeling language"

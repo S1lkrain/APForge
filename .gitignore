@@ -16,3 +16,4 @@ frontend/node_modules/
 .tools/
 build/
 *.egg-info/
+.codegraph/

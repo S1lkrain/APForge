@@ -36,6 +36,7 @@ export function buildItemRowFromGenerate(
     answer: data.item.answer,
     explanation: data.item.explanation,
     metadata: data.item.metadata ?? {},
+    visual: data.item.visual ?? null,
   };
 }
 
